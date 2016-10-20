@@ -168,9 +168,7 @@ class DefaultController extends Controller
                 $request->getSession()->set('unidade', $unidade);
             }
         } catch (Exception $e) {
-            $envelope
-                    ->setSuccess(false)
-                    ->setMessage($e->getMessage());
+            $envelope->exception($e);
         }
 
         return $this->json($envelope);
@@ -205,9 +203,7 @@ class DefaultController extends Controller
             $em->flush();
 
         } catch (Exception $e) {
-            $envelope
-                    ->setSuccess(false)
-                    ->setMessage($e->getMessage());
+            $envelope->exception($e);
         }
 
         return $this->json($envelope);
@@ -229,9 +225,7 @@ class DefaultController extends Controller
             $service = new AtendimentoService($em);
             $service->acumularAtendimentos($unidade);
         } catch (Exception $e) {
-            $envelope
-                    ->setSuccess(false)
-                    ->setMessage($e->getMessage());
+            $envelope->exception($e);
         }
 
         return $this->json($envelope);
