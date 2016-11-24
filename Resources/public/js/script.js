@@ -1,81 +1,114 @@
 /**
- * Novo SGA - Unidade
+ * Novo SGA - Settings
  * @author Rogerio Lino <rogeriolino@gmail.com>
  */
-var SGA = SGA || {};
+(function() {
+    'use strict'
 
-App.Unidade = {
-    
-    Triagem: {
-        
-        salvar: function() {
-            App.ajax({
-                url: App.url('/novosga.settings/update_impressao'),
-                type: 'post',
-                data: {
-                    impressao: $('#impressao:checked').val(),
-                    mensagem: $('#mensagem').val()
-                },
-                success: function(response) {
-                    
-                }
-            });
+    var app = new Vue({
+        el: '#settings',
+        data: {
+            locais: locais,
+            impressao: impressao,
+            contadores: {},
+            servicos: [],
+            servicoUnidade: {
+                local: {}
+            }
         },
-        
-        reiniciarSenhas: function(alert) {
-            if (confirm(alert)) {
+        methods: {
+            loadServicos: function () {
+                var self = this;
+                App.ajax({
+                    url: App.url('/novosga.settings/servicos'),
+                    success: function (response) {
+                        self.servicos = response.data.map(function (servico) {
+                            servico.local = servico.local.id;
+                            return servico;
+                        });
+                    }
+                });
+            },
+            loadContadores: function () {
+                var self = this;
+                App.ajax({
+                    url: App.url('/novosga.settings/contadores'),
+                    success: function (response) {
+                        self.contadores = {};
+                        for (var i = 0; i < response.data.length; i++) {
+                            var contador = response.data[i];
+                            self.contadores[contador.servico.id] = contador.numero;
+                        }
+                    }
+                });
+            },
+            updateServico: function (servicoUnidade) {
+                var data = $.extend({}, servicoUnidade);
+                
+                data.sigla = data.sigla.toUpperCase();
+                delete data.servico;
+                
+                return App.ajax({
+                    url: App.url('/novosga.settings/servicos') + '/' + servicoUnidade.servico.id,
+                    type: 'post',
+                    data: data
+                });
+            },
+            updateServicoFromModal: function () {
+                var self = this;
+                
+                this.updateServico(this.servicoUnidade).then(function () {
+                    self.servicoUnidade = {};
+                    self.loadServicos();
+                });
+            },
+            showModal: function (su) {
+                this.servicoUnidade = $.extend({}, su);
+                
+                $('#dialog-servico').modal('show');
+            },
+            uppercase: function (su) {
+                su.sigla = (su.sigla || '').toUpperCase();
+            },
+            updateImpressao: function () {
+                var data = $.extend({}, this.impressao);
+                
+                return App.ajax({
+                    url: App.url('/novosga.settings/update_impressao'),
+                    type: 'post',
+                    data: data
+                });
+            },
+            reiniciarContator: function (servicoId) {
+                var self = this;
+                App.ajax({
+                    url: App.url('/novosga.settings/reiniciar') + '/' + servicoId,
+                    complete: function () {
+                        self.loadContadores();
+                    }
+                });
+            },
+            reiniciarSenhas: function () {
+                if (!confirm(desejaReiniciarSenhas)) {
+                    return;
+                }
+                
+                var self = this;
                 App.ajax({
                     url: App.url('/novosga.settings/acumular_atendimentos'),
                     type: 'post',
-                    success: function(response) {
-                        App.dialogs.modal("#dialog-reiniciar");
+                    complete: function () {
+                        self.loadContadores();
                     }
                 });
+            },
+            init: function () {
+                this.loadServicos();
+                this.loadContadores();
             }
-            return false;
-        },
-    },
-        
-    Servicos: {
-        toggle: function(btn) {
-            btn = $(btn);
-            App.ajax({
-                url: App.url('/novosga.settings/toggle_servico') + '/' + (btn.prop('checked') ? 1 : 0),
-                data: {id: btn.data('id')},
-                type: 'post',
-                success: function(response) {
-                    if (btn.prop('checked')) {
-                        $('.servico-' + btn.data('id')).prop('disabled', false)
-                        $('#sigla-' + btn.data('id')).focus();
-                    } else {
-                        $('.servico-' + btn.data('id')).prop('disabled', true);
-                    }
-                },
-                error: function() {
-                    btn.prop("disabled", false)
-                }
-            });
-        },
-        
-        change: function(id) {
-            var peso = Math.max(1, $('#peso-' + id).val());
-            if (isNaN(peso)) {
-                peso = 1;
-            }
-            $('#peso-' + id).val(peso);
-            
-            App.ajax({
-                url: App.url('/novosga.settings/update_servico'),
-                type: 'post',
-                data: {
-                    id: id, 
-                    sigla: $('#sigla-' + id).val(),
-                    local: $('#local-' + id).val(),
-                    peso: peso
-                }
-            });
         }
-        
-    }
-    
-};
+    });
+
+    app.init();
+
+})();

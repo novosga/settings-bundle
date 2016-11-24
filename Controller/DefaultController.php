@@ -4,6 +4,9 @@ namespace Novosga\SettingsBundle\Controller;
 
 use Exception;
 use Novosga\Entity\Local;
+use Novosga\Entity\Unidade;
+use Novosga\Entity\Servico;
+use Novosga\Entity\Contador;
 use Novosga\Http\Envelope;
 use Novosga\Service\AtendimentoService;
 use Novosga\Service\ServicoService;
@@ -11,6 +14,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Novosga\SettingsBundle\Form\ServicoUnidadeType;
+use Novosga\SettingsBundle\Form\ImpressaoType;
 
 /**
  * DefaultController
@@ -32,7 +37,7 @@ class DefaultController extends Controller
     public function indexAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-        $unidade = $request->getSession()->get('unidade');
+        $unidade = $this->getUnidade($request);
         
         $service = new ServicoService($em);
 
@@ -46,12 +51,18 @@ class DefaultController extends Controller
             $service->updateUnidade($unidade, $local, self::DEFAULT_SIGLA);
         }
         
-        $form = $this->createForm(\AppBundle\Form\ServicoUnidadeType::class, new \Novosga\Entity\ServicoUnidade());
+        dump($unidade->getImpressao());
+        
+        $form = $this->createForm(ServicoUnidadeType::class);
+        $inlineForm = $this->createForm(ServicoUnidadeType::class);
+        $impressaoForm = $this->createForm(ImpressaoType::class, $unidade->getImpressao());
 
         return $this->render('NovosgaSettingsBundle:default:index.html.twig', [
             'unidade' => $unidade,
             'locais' => $locais,
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'inlineForm' => $inlineForm->createView(),
+            'impressaoForm' => $impressaoForm->createView(),
         ]);
     }
     
@@ -65,12 +76,15 @@ class DefaultController extends Controller
     public function servicosAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-        $unidade = $request->getSession()->get('unidade');
+        $unidade = $this->getUnidade($request, false);
         
         $service = new ServicoService($em);
         $servicos = $service->servicosUnidade($unidade);
         
-        return new JsonResponse($servicos);
+        $envelope = new Envelope();
+        $envelope->setData($servicos);
+        
+        return $this->json($envelope);
     }
     
     /**
@@ -83,7 +97,7 @@ class DefaultController extends Controller
     public function contadoresAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-        $unidade = $request->getSession()->get('unidade');
+        $unidade = $this->getUnidade($request, false);
         
         $contadores = $em
             ->createQueryBuilder()
@@ -96,7 +110,10 @@ class DefaultController extends Controller
             ->getQuery()
             ->getResult();
         
-        return new JsonResponse($contadores);
+        $envelope = new Envelope();
+        $envelope->setData($contadores);
+        
+        return $this->json($envelope);
     }
     
     /**
@@ -109,35 +126,24 @@ class DefaultController extends Controller
     public function updateServicoAction(Request $request, $id)
     {
         $json = $request->getContent();
-        $data = json_decode($json);
+        $data = json_decode($json, true);
         
         $em = $this->getDoctrine()->getManager();
-        $unidade = $request->getSession()->get('unidade');
+        $unidade = $this->getUnidade($request, false);
         
         $service = new ServicoService($em);
         $su = $service->servicoUnidade($unidade, $id);
         
-        if ($data->sigla) {
-            $su->setSigla($data->sigla);
-        }
-        
-        if ($data->local) {
-            $local = $em->find(Local::class, (int) $data->local->id);
-            if ($local) {
-                $su->setLocal($local);
-            }
-        }
-        
-        if ($data->peso) {
-            $su->setPeso(max(1, $data->peso));
-        }
-        
-        $su->setStatus(!!$data->status);
+        $form = $this->createForm(ServicoUnidadeType::class, $su);
+        $form->submit($data);
         
         $em->merge($su);
         $em->flush();
         
-        return new JsonResponse($su);
+        $envelope = new Envelope();
+        $envelope->setData($su);
+        
+        return $this->json($envelope);
     }
 
     /**
@@ -152,25 +158,20 @@ class DefaultController extends Controller
         $envelope = new Envelope();
         try {
             $em = $this->getDoctrine()->getManager();
+            $unidade = $this->getUnidade($request);
             
-            $impressao = (int) $request->get('impressao');
-            $mensagem = $request->get('mensagem', '');
-            $unidade = $request->getSession()->get('unidade');
+            $data = json_decode($request->getContent(), true);
             
-            $query = $em->createQuery("UPDATE Novosga\Entity\Unidade e SET e.statusImpressao = :status, e.mensagemImpressao = :mensagem WHERE e.id = :unidade");
-            $query->setParameter('status', $impressao);
-            $query->setParameter('mensagem', $mensagem);
-            $query->setParameter('unidade', $unidade);
+            $form = $this->createForm(ImpressaoType::class, $unidade->getImpressao());
+            $form->submit($data);
             
-            if ($query->execute()) {
-                // atualizando sessao
-                $unidade = $em->find('Novosga\Entity\Unidade', $unidade->getId());
-                $request->getSession()->set('unidade', $unidade);
-            }
+            $em->merge($unidade);
+            $em->flush();
+            
+            $envelope->setData($unidade);
+            
         } catch (Exception $e) {
-            $envelope
-                    ->setSuccess(false)
-                    ->setMessage($e->getMessage());
+            $envelope->exception($e);
         }
 
         return $this->json($envelope);
@@ -180,34 +181,37 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      * 
-     * @Route("/toggle_servico/{status}", name="novosga_settings_toggle_servico")
-     * @Method("POST")
+     * @Route("/reiniciar/{id}", name="novosga_settings_reiniciar_contador")
+     * @ Method("POST")
      */
-    public function toggleServicoAction(Request $request, $status)
+    public function reiniciarContadorAction(Request $request, Servico $servico)
     {
         $envelope = new Envelope();
         try {
             $em = $this->getDoctrine()->getManager();
-            
-            $id = (int) $request->get('id');
             $unidade = $request->getSession()->get('unidade');
             
-            if (!$id || !$unidade) {
-                return false;
-            }
-
             $service = new ServicoService($em);
-            $su = $service->servicoUnidade($unidade, $id);
-
-            $su->setStatus($status);
-
-            $em->merge($su);
+            $su = $service->servicoUnidade($unidade, $servico);
+            
+            if (!$su) {
+                throw new Exception(_('Serviço inválido'));
+            }
+            
+            $contador = $em->getRepository(Contador::class)
+                    ->findOneBy([
+                        'unidade' => $unidade->getId(), 
+                        'servico' => $servico->getId()
+                    ]);
+            
+            $contador->setNumero($su->getNumeroInicial());
+            $em->merge($contador);
             $em->flush();
-
+            
+            $envelope->setData($contador);
+            
         } catch (Exception $e) {
-            $envelope
-                    ->setSuccess(false)
-                    ->setMessage($e->getMessage());
+            $envelope->exception($e);
         }
 
         return $this->json($envelope);
@@ -220,20 +224,39 @@ class DefaultController extends Controller
      * @Route("/acumular_atendimentos", name="novosga_settings_acumular_atendimentos")
      * @Method("POST")
      */
-    public function reiniciarAction(Request $request, $status)
+    public function reiniciarAction(Request $request)
     {
         $envelope = new Envelope();
         try {
             $em = $this->getDoctrine()->getManager();
-            $unidade = $request->getSession()->get('unidade');
+            $unidade = $this->getUnidade($request, false);
+            
             $service = new AtendimentoService($em);
             $service->acumularAtendimentos($unidade);
         } catch (Exception $e) {
-            $envelope
-                    ->setSuccess(false)
-                    ->setMessage($e->getMessage());
+            $envelope->exception($e);
         }
 
         return $this->json($envelope);
+    }
+    
+    /**
+     * 
+     * @param Request $request
+     * @param bool $forceReload
+     * @return Unidade
+     */
+    private function getUnidade(Request $request, $forceReload = true)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $sessionData = $request->getSession()->get('unidade');
+        
+        if ($forceReload) {
+            $unidade = $em->find(Unidade::class, $sessionData->getId());
+        } else {
+            $unidade = $sessionData;
+        }
+        
+        return $unidade;
     }
 }
