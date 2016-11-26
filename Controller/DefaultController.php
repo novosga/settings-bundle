@@ -37,7 +37,9 @@ class DefaultController extends Controller
     public function indexAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-        $unidade = $this->getUnidade($request);
+        
+        $usuario = $this->getUser();
+        $unidade = $usuario->getLotacao()->getUnidade();
         
         $service = new ServicoService($em);
 
@@ -50,8 +52,6 @@ class DefaultController extends Controller
             $local = $locais[0];
             $service->updateUnidade($unidade, $local, self::DEFAULT_SIGLA);
         }
-        
-        dump($unidade->getImpressao());
         
         $form = $this->createForm(ServicoUnidadeType::class);
         $inlineForm = $this->createForm(ServicoUnidadeType::class);
@@ -76,7 +76,8 @@ class DefaultController extends Controller
     public function servicosAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-        $unidade = $this->getUnidade($request, false);
+        $usuario = $this->getUser();
+        $unidade = $usuario->getLotacao()->getUnidade();
         
         $service = new ServicoService($em);
         $servicos = $service->servicosUnidade($unidade);
@@ -97,7 +98,8 @@ class DefaultController extends Controller
     public function contadoresAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-        $unidade = $this->getUnidade($request, false);
+        $usuario = $this->getUser();
+        $unidade = $usuario->getLotacao()->getUnidade();
         
         $contadores = $em
             ->createQueryBuilder()
@@ -129,7 +131,8 @@ class DefaultController extends Controller
         $data = json_decode($json, true);
         
         $em = $this->getDoctrine()->getManager();
-        $unidade = $this->getUnidade($request, false);
+        $usuario = $this->getUser();
+        $unidade = $usuario->getLotacao()->getUnidade();
         
         $service = new ServicoService($em);
         $su = $service->servicoUnidade($unidade, $id);
@@ -158,7 +161,8 @@ class DefaultController extends Controller
         $envelope = new Envelope();
         try {
             $em = $this->getDoctrine()->getManager();
-            $unidade = $this->getUnidade($request);
+            $usuario = $this->getUser();
+            $unidade = $usuario->getLotacao()->getUnidade();
             
             $data = json_decode($request->getContent(), true);
             
@@ -189,7 +193,9 @@ class DefaultController extends Controller
         $envelope = new Envelope();
         try {
             $em = $this->getDoctrine()->getManager();
-            $unidade = $request->getSession()->get('unidade');
+            
+            $usuario = $this->getUser();
+            $unidade = $usuario->getLotacao()->getUnidade();
             
             $service = new ServicoService($em);
             $su = $service->servicoUnidade($unidade, $servico);
@@ -229,7 +235,8 @@ class DefaultController extends Controller
         $envelope = new Envelope();
         try {
             $em = $this->getDoctrine()->getManager();
-            $unidade = $this->getUnidade($request, false);
+            $usuario = $this->getUser();
+            $unidade = $usuario->getLotacao()->getUnidade();
             
             $service = new AtendimentoService($em);
             $service->acumularAtendimentos($unidade);
@@ -238,25 +245,5 @@ class DefaultController extends Controller
         }
 
         return $this->json($envelope);
-    }
-    
-    /**
-     * 
-     * @param Request $request
-     * @param bool $forceReload
-     * @return Unidade
-     */
-    private function getUnidade(Request $request, $forceReload = true)
-    {
-        $em = $this->getDoctrine()->getManager();
-        $sessionData = $request->getSession()->get('unidade');
-        
-        if ($forceReload) {
-            $unidade = $em->find(Unidade::class, $sessionData->getId());
-        } else {
-            $unidade = $sessionData;
-        }
-        
-        return $unidade;
     }
 }
