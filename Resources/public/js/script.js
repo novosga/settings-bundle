@@ -49,7 +49,7 @@
                 delete data.servico;
                 
                 return App.ajax({
-                    url: App.url('/novosga.settings/servicos') + '/' + servicoUnidade.servico.id,
+                    url: App.url('/novosga.settings/servicos/') + servicoUnidade.servico.id,
                     type: 'post',
                     data: data
                 });
@@ -82,7 +82,7 @@
             reiniciarContator: function (servicoId) {
                 var self = this;
                 App.ajax({
-                    url: App.url('/novosga.settings/reiniciar') + '/' + servicoId,
+                    url: App.url('/novosga.settings/reiniciar/') + servicoId,
                     complete: function () {
                         self.loadContadores();
                     }
