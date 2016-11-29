@@ -10,11 +10,11 @@
         data: {
             locais: locais,
             impressao: impressao,
+            usuarios: usuarios,
             contadores: {},
             servicos: [],
-            servicoUnidade: {
-                local: {}
-            }
+            servicoUsuario: null,
+            servicoUnidade: null
         },
         methods: {
             loadServicos: function () {
@@ -29,6 +29,7 @@
                     }
                 });
             },
+            
             loadContadores: function () {
                 var self = this;
                 App.ajax({
@@ -42,6 +43,7 @@
                     }
                 });
             },
+            
             updateServico: function (servicoUnidade) {
                 var data = $.extend({}, servicoUnidade);
                 
@@ -54,6 +56,7 @@
                     data: data
                 });
             },
+            
             updateServicoFromModal: function () {
                 var self = this;
                 
@@ -62,14 +65,17 @@
                     self.loadServicos();
                 });
             },
+            
             showModal: function (su) {
                 this.servicoUnidade = $.extend({}, su);
                 
                 $('#dialog-servico').modal('show');
             },
+            
             uppercase: function (su) {
                 su.sigla = (su.sigla || '').toUpperCase();
             },
+            
             updateImpressao: function () {
                 var data = $.extend({}, this.impressao);
                 
@@ -79,6 +85,7 @@
                     data: data
                 });
             },
+            
             reiniciarContator: function (servicoId) {
                 var self = this;
                 App.ajax({
@@ -88,6 +95,7 @@
                     }
                 });
             },
+            
             reiniciarSenhas: function () {
                 if (!confirm(desejaReiniciarSenhas)) {
                     return;
@@ -102,6 +110,47 @@
                     }
                 });
             },
+            
+            addServicoUsuario: function(usuario) {
+                if (!this.servicoUsuario) {
+                    return;
+                }
+                
+                for (var i = 0; i < usuario.servicos.length; i++) {
+                    if (this.servicoUsuario.servico.id === usuario.servicos[i].servico.id) {
+                        return;
+                    }
+                }
+                
+                var self = this;
+                
+                App.ajax({
+                    url: App.url('/novosga.settings/servico_usuario/') + usuario.id + '/' + this.servicoUsuario.servico.id,
+                    type: 'post',
+                    success: function () {
+                        usuario.servicos.push(self.servicoUsuario);
+                    }
+                });
+            },
+            
+            removeServicoUsuario: function(usuario, servicoUnidade) {
+                var self = this;
+                
+                App.ajax({
+                    url: App.url('/novosga.settings/servico_usuario/') + usuario.id + '/' + servicoUnidade.servico.id,
+                    type: 'delete',
+                    success: function () {
+                        for (var i = 0; i < usuario.servicos.length; i++) {
+                            var su = usuario.servicos[i];
+                            if (su.servico.id === servicoUnidade.servico.id) {
+                                usuario.servicos.splice(usuario.servicos.indexOf(su), 1);
+                                break;
+                            }
+                        }
+                    }
+                });
+            },
+            
             init: function () {
                 this.loadServicos();
                 this.loadContadores();

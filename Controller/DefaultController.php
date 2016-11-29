@@ -4,8 +4,9 @@ namespace Novosga\SettingsBundle\Controller;
 
 use Exception;
 use Novosga\Entity\Local;
-use Novosga\Entity\Unidade;
+use Novosga\Entity\Lotacao;
 use Novosga\Entity\Servico;
+use Novosga\Entity\Usuario;
 use Novosga\Entity\Contador;
 use Novosga\Http\Envelope;
 use Novosga\Service\AtendimentoService;
@@ -16,6 +17,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Novosga\SettingsBundle\Form\ServicoUnidadeType;
 use Novosga\SettingsBundle\Form\ImpressaoType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 
 /**
  * DefaultController
@@ -48,6 +50,32 @@ class DefaultController extends Controller
                     ->getRepository(Local::class)
                     ->findBy([], ['nome' => 'ASC']);
 
+        // usuarios da unidade
+        $lotacoes = $em
+                    ->getRepository(Lotacao::class)
+                    ->getLotacoesUnidade($unidade);
+        
+        $servicos = $service->servicosUnidade($unidade);
+        
+        $usuarios = array_map(function (Lotacao $lotacao) use ($service, $unidade, $servicos) {
+            $usuario = $lotacao->getUsuario();
+            $servicosUsuario = $service->servicosUsuario($unidade, $usuario);
+            
+            $data  = $usuario->jsonSerialize();
+            $data['servicos'] = [];
+                    
+            foreach ($servicos as $su) {
+                foreach ($servicosUsuario as $servicoUsuario) {
+                    $contains = $servicoUsuario->getServico()->getId() === $su->getServico()->getId();
+                    if ($contains) {
+                        $data['servicos'][] = $su;
+                    }
+                }
+            }
+            
+            return $data;
+        }, $lotacoes);
+
         if (count($locais)) {
             $local = $locais[0];
             $service->updateUnidade($unidade, $local, self::DEFAULT_SIGLA);
@@ -60,6 +88,7 @@ class DefaultController extends Controller
         return $this->render('NovosgaSettingsBundle:default:index.html.twig', [
             'unidade' => $unidade,
             'locais' => $locais,
+            'usuarios' => $usuarios,
             'form' => $form->createView(),
             'inlineForm' => $inlineForm->createView(),
             'impressaoForm' => $impressaoForm->createView(),
@@ -244,6 +273,78 @@ class DefaultController extends Controller
             $envelope->exception($e);
         }
 
+        return $this->json($envelope);
+    }
+    
+    /**
+     * @Route("/servico_usuario/{usuarioId}/{servicoId}", name="novosga_settings_add_servico_usuario")
+     * @ParamConverter("usuario", options={"id" = "usuarioId"})
+     * @ParamConverter("servico", options={"id" = "servicoId"})
+     * @Method("POST")
+     */
+    public function addServicoUsuarioAction(Request $request, Usuario $usuario, Servico $servico)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $unidade = $this->getUser()->getLotacao()->getUnidade();
+        $envelope = new Envelope();
+        
+        try {
+            $service = new ServicoService($em);
+            $servicoUnidade = $service->servicoUnidade($unidade, $servico);
+            
+            if (!$servicoUnidade) {
+                throw new Exception(_('Serviço inválido'));
+            }
+            
+            $servicoUsuario = new \Novosga\Entity\ServicoUsuario();
+            $servicoUsuario->setUsuario($usuario);
+            $servicoUsuario->setServicoUnidade($servicoUnidade);
+            $servicoUsuario->setPeso(1);
+            
+            $em->persist($servicoUsuario);
+            $em->flush();
+            
+        } catch (Exception $e) {
+            $envelope->exception($e);
+        }
+        
+        return $this->json($envelope);
+    }
+    
+    /**
+     * @Route("/servico_usuario/{usuarioId}/{servicoId}", name="novosga_settings_remove_servico_usuario")
+     * @ParamConverter("usuario", options={"id" = "usuarioId"})
+     * @ParamConverter("servico", options={"id" = "servicoId"})
+     * @Method("DELETE")
+     */
+    public function removeServicoUsuarioAction(Request $request, Usuario $usuario, Servico $servico)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $unidade = $this->getUser()->getLotacao()->getUnidade();
+        $envelope = new Envelope();
+        
+        try {
+            $service = new ServicoService($em);
+            $servicoUnidade = $service->servicoUnidade($unidade, $servico);
+            
+            if (!$servicoUnidade) {
+                throw new Exception(_('Serviço inválido'));
+            }
+            
+            $servicoUsuario = $em->getRepository(\Novosga\Entity\ServicoUsuario::class)
+                                ->findOneBy([
+                                    'usuario' => $usuario,
+                                    'servico' => $servico,
+                                    'unidade' => $unidade
+                                ]);
+            
+            $em->remove($servicoUsuario);
+            $em->flush();
+            
+        } catch (Exception $e) {
+            $envelope->exception($e);
+        }
+        
         return $this->json($envelope);
     }
 }

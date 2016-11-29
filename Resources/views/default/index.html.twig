@@ -12,10 +12,19 @@
     <div id="settings">
         <ul class="nav nav-tabs">
             <li class="active">
-                <a href="#tab-servicos" data-toggle="tab">{% trans %}Serviços{% endtrans %}</a>
+                <a href="#tab-servicos" data-toggle="tab">
+                    {% trans %}Serviços{% endtrans %}
+                </a>
             </li>
             <li>
-                <a href="#tab-triagem" data-toggle="tab">{% trans %}Triagem{% endtrans %}</a>
+                <a href="#tab-triagem" data-toggle="tab">
+                    {% trans %}Triagem{% endtrans %}
+                </a>
+            </li>
+            <li>
+                <a href="#tab-atendimento" data-toggle="tab">
+                    {% trans %}Atendimento{% endtrans %}
+                </a>
             </li>
         </ul>
         <div class="tab-content">
@@ -148,6 +157,65 @@
                     </div>
                 </div>
             </div>
+            <div id="tab-atendimento" class="tab-pane">
+                <div class="row">
+                    <div class="col-md-4 col-sm-6" v-for="usuario in usuarios">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                {% verbatim %}
+                                    {{ usuario.nome }} ({{ usuario.login }})
+                                {% endverbatim %}
+                            </div>
+                            <div class="panel-body">
+                                <table class="table" v-if="usuario.servicos.length">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                {% trans %}Serviços{% endtrans %}
+                                            </th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="su in usuario.servicos">
+                                            <td>
+                                                {% verbatim %}
+                                                    {{ su.sigla }} - {{ su.servico.nome }}
+                                                {% endverbatim %}
+                                            </td> 
+                                            <td class="col-sm-1">
+                                                <button type="button" class="btn btn-danger" v-on:click="removeServicoUsuario(usuario, su)">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </td> 
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <p v-else class="text-muted">
+                                    {% trans %}Nenhum serviço{% endtrans %}
+                                </p>
+                            </div>
+                            <div class="panel-footer">
+                                <div class="input-group">
+                                    <select class="form-control" v-model="servicoUsuario">
+                                        <option v-for="su in servicos" v-bind:value="su">
+                                            {% verbatim %}
+                                                {{ su.sigla }} - {{ su.servico.nome }}
+                                            {% endverbatim %}
+                                        </option>
+                                    </select>
+                                    
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-default" type="button" v-on:click="addServicoUsuario(usuario)">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="dialog-servico" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
@@ -158,7 +226,7 @@
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                             <h4 class="modal-title">{% trans %}Serviço{% endtrans %}</h4>
                         </div>
-                        <div class="modal-body">
+                        <div class="modal-body" v-if="servicoUnidade">
                             <fieldset>
                                 <legend>{% trans %}Triagem{% endtrans %}</legend>
 
@@ -241,6 +309,7 @@
     <script type="text/javascript" src="{{ asset('bundles/novosgasettings/js/bootstrap-switch.min.js') }}"></script>
     <script>
         var locais = {{ locais|json_encode()|raw }},
+            usuarios = {{ usuarios|json_encode()|raw }},
             impressao = {{ unidade.impressao|json_encode()|raw }},
             desejaReiniciarSenhas = '{% trans %}Deseja realmente reiniciar as senhas?{% endtrans %}';
         //$('[type=checkbox]').bootstrapSwitch();
