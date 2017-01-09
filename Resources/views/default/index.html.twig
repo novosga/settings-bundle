@@ -60,8 +60,8 @@
                             <td class="local">
                                 {{ form_row(inlineForm.local, { label: false, attr: { 'v-model': 'su.local', 'v-on:change': 'updateServico(su)', 'v-bind:disabled': 'su.status!=1' } }) }}
                             </td>
-                            <td>
-                                {{ form_row(inlineForm.status, { label: false, attr: { 'v-model': 'su.status', 'v-on:change': 'updateServico(su)' } }) }}
+                            <td class="checkboxes">
+                                {{ form_widget(inlineForm.status, { label: false, attr: { 'v-model': 'su.status', 'v-on:change': 'updateServico(su)',  'v-bs-switch': '1' } }) }}
                             </td>
                             <td>
                                 <button type="button" class="btn btn-default" v-on:click="showModal(su)" v-bind:disabled="su.status!=1">
@@ -312,7 +312,6 @@
             usuarios = {{ usuarios|json_encode()|raw }},
             impressao = {{ unidade.impressao|json_encode()|raw }},
             desejaReiniciarSenhas = '{% trans %}Deseja realmente reiniciar as senhas?{% endtrans %}';
-        //$('[type=checkbox]').bootstrapSwitch();
     </script>
     <script type="text/javascript" src="{{ asset('bundles/novosgasettings/js/script.js') }}"></script>
 {% endblock %}

@@ -4,7 +4,17 @@
  */
 (function() {
     'use strict'
-
+    
+    Vue.directive('bs-switch', {
+        inserted: function (el) {
+            $(el).bootstrapSwitch().on('switchChange.bootstrapSwitch', function () {
+                var e = document.createEvent('HTMLEvents');
+                e.initEvent('change', true, true);
+                el.dispatchEvent(e);
+            });
+        }
+    });
+    
     var app = new Vue({
         el: '#settings',
         data: {
@@ -17,6 +27,10 @@
             servicoUnidade: null
         },
         methods: {
+            teste: function (su) {
+                su.status = !su.status;
+            },
+            
             loadServicos: function () {
                 var self = this;
                 App.ajax({

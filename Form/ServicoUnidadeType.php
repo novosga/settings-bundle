@@ -39,12 +39,16 @@ class ServicoUnidadeType extends AbstractType
             ->add('local', EntityType::class, [
                 'class' => Local::class
             ])
-            ->add('status', CheckboxType::class)
+            ->add('status', CheckboxType::class, [
+                'required' => false
+            ])
             ->add('peso', IntegerType::class)
             ->add('numeroInicial', IntegerType::class)
             ->add('numeroFinal', IntegerType::class)
             ->add('incremento', IntegerType::class)
-            ->add('prioridade', CheckboxType::class)
+            ->add('prioridade', CheckboxType::class, [
+                'required' => false
+            ])
             ->add('mensagem', TextareaType::class)
         ;
     }
