@@ -23,7 +23,7 @@
             usuarios: usuarios,
             contadores: {},
             servicos: [],
-            servicoUsuario: null,
+            servicoUsuario: {},
             servicoUnidade: null
         },
         computed: {
@@ -144,30 +144,28 @@
             },
             
             addServicoUsuario: function (usuario) {
-                if (!this.servicoUsuario) {
+                if (!this.servicoUsuario[usuario.id]) {
                     return;
                 }
                 
+                var su = this.servicoUsuario[usuario.id];
+                
                 for (var i = 0; i < usuario.servicos.length; i++) {
-                    if (this.servicoUsuario.servico.id === usuario.servicos[i].servico.id) {
+                    if (su.servico.id === usuario.servicos[i].servico.id) {
                         return;
                     }
                 }
                 
-                var self = this;
-                
                 App.ajax({
-                    url: App.url('/novosga.settings/servico_usuario/') + usuario.id + '/' + this.servicoUsuario.servico.id,
+                    url: App.url('/novosga.settings/servico_usuario/') + usuario.id + '/' + su.servico.id,
                     type: 'post',
                     success: function () {
-                        usuario.servicos.push(self.servicoUsuario);
+                        usuario.servicos.push(su);
                     }
                 });
             },
             
-            removeServicoUsuario: function (usuario, servicoUnidade) {
-                var self = this;
-                
+            removeServicoUsuario: function (usuario, servicoUnidade) {                
                 App.ajax({
                     url: App.url('/novosga.settings/servico_usuario/') + usuario.id + '/' + servicoUnidade.servico.id,
                     type: 'delete',

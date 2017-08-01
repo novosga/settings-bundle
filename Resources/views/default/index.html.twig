@@ -211,7 +211,7 @@
                             </div>
                             <div class="panel-footer">
                                 <div class="input-group">
-                                    <select class="form-control" v-model="servicoUsuario">
+                                    <select class="form-control" v-model="servicoUsuario[usuario.id]">
                                         <option v-for="su in availableServices[usuario.id]" v-bind:value="su">
                                             {% verbatim %}
                                                 {{ su.sigla }} - {{ su.servico.nome }}
