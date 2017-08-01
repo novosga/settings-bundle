@@ -42,7 +42,7 @@ class DefaultController extends Controller
     /**
      * @param Request $request
      * @return Response
-     * 
+     *
      * @Route("/", name="novosga_settings_index")
      */
     public function indexAction(Request $request)
@@ -107,7 +107,7 @@ class DefaultController extends Controller
     /**
      * @param Request $request
      * @return Response
-     * 
+     *
      * @Route("/servicos", name="novosga_settings_servicos")
      * @Method("GET")
      */
@@ -129,7 +129,7 @@ class DefaultController extends Controller
     /**
      * @param Request $request
      * @return Response
-     * 
+     *
      * @Route("/contadores", name="novosga_settings_contadores")
      * @Method("GET")
      */
@@ -159,7 +159,7 @@ class DefaultController extends Controller
     /**
      * @param Request $request
      * @return Response
-     * 
+     *
      * @Route("/servicos/{id}", name="novosga_settings_servicos_update")
      * @Method("POST")
      */
@@ -190,7 +190,7 @@ class DefaultController extends Controller
     /**
      * @param Request $request
      * @return Response
-     * 
+     *
      * @Route("/update_impressao", name="novosga_settings_update_impressao")
      * @Method("POST")
      */
@@ -222,7 +222,7 @@ class DefaultController extends Controller
     /**
      * @param Request $request
      * @return Response
-     * 
+     *
      * @Route("/reiniciar/{id}", name="novosga_settings_reiniciar_contador")
      * @ Method("POST")
      */
@@ -244,7 +244,7 @@ class DefaultController extends Controller
             
             $contador = $em->getRepository(Contador::class)
                     ->findOneBy([
-                        'unidade' => $unidade->getId(), 
+                        'unidade' => $unidade->getId(),
                         'servico' => $servico->getId()
                     ]);
             
@@ -264,7 +264,7 @@ class DefaultController extends Controller
     /**
      * @param Request $request
      * @return Response
-     * 
+     *
      * @Route("/acumular_atendimentos", name="novosga_settings_acumular_atendimentos")
      * @Method("POST")
      */

@@ -70,5 +70,4 @@ class ImpressaoType extends AbstractType
     {
         return null;
     }
-
 }

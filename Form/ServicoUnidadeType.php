@@ -39,7 +39,7 @@ class ServicoUnidadeType extends AbstractType
             ->add('local', EntityType::class, [
                 'class' => Local::class
             ])
-            ->add('status', CheckboxType::class, [
+            ->add('ativo', CheckboxType::class, [
                 'required' => false
             ])
             ->add('peso', IntegerType::class)
@@ -67,5 +67,4 @@ class ServicoUnidadeType extends AbstractType
     {
         return null;
     }
-
 }

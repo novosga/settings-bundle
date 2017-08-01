@@ -1,13 +1,19 @@
-{% extends "base.html.twig" %}
+{% extends "NovosgaSettingsBundle::base.html.twig" %}
 
 {% block body %}
-    <h1>
-        <i class="fa fa-wrench" aria-hidden="true"></i>
-        {% trans %}Configurações{% endtrans %}
-        <small>
-            {% trans %}Configurações da unidade{% endtrans %}
-        </small>
-    </h1>
+    <div class="row">
+        <div class="col-sm-12">
+            <h1>
+                <i class="fa fa-wrench" aria-hidden="true"></i>
+                {% trans %}Configurações{% endtrans %}
+                <small>
+                    {% trans %}Configurações da unidade{% endtrans %}
+                </small>
+            </h1>
+        </div>
+    </div>
+    
+    <hr>
         
     <div id="settings">
         <ul class="nav nav-tabs">
@@ -42,7 +48,7 @@
                                 {% trans %}Local{% endtrans %}
                             </th>
                             <th class="col-md-1">
-                                {% trans %}Status{% endtrans %}
+                                {% trans %}Situação{% endtrans %}
                             </th>
                             <th class="col-md-1"></th>
                         </tr>
@@ -50,7 +56,7 @@
                     <tbody>
                         <tr v-for="su in servicos">
                             <td class="sigla">
-                                {{ form_row(inlineForm.sigla, { label: false, attr: { 'v-model': 'su.sigla', 'v-on:input': 'uppercase(su)', 'v-on:blur': 'updateServico(su)', 'v-bind:disabled': 'su.status!=1' } }) }}
+                                {{ form_row(inlineForm.sigla, { label: false, attr: { 'v-model': 'su.sigla', 'v-on:input': 'uppercase(su)', 'v-on:blur': 'updateServico(su)', 'v-bind:disabled': '!su.ativo' } }) }}
                             </td>
                             <td class="nome">
                                 {% verbatim %}
@@ -58,13 +64,13 @@
                                 {% endverbatim %}
                             </td>
                             <td class="local">
-                                {{ form_row(inlineForm.local, { label: false, attr: { 'v-model': 'su.local', 'v-on:change': 'updateServico(su)', 'v-bind:disabled': 'su.status!=1' } }) }}
+                                {{ form_row(inlineForm.local, { label: false, attr: { 'v-model': 'su.local', 'v-on:change': 'updateServico(su)', 'v-bind:disabled': '!su.ativo' } }) }}
                             </td>
                             <td class="checkboxes">
-                                {{ form_widget(inlineForm.status, { label: false, attr: { 'v-model': 'su.status', 'v-on:change': 'updateServico(su)',  'v-bs-switch': '1' } }) }}
+                                {{ form_widget(inlineForm.ativo, { label: false, attr: { 'v-model': 'su.ativo', 'v-on:change': 'updateServico(su)',  'v-bs-switch': '1' } }) }}
                             </td>
                             <td>
-                                <button type="button" class="btn btn-default" v-on:click="showModal(su)" v-bind:disabled="su.status!=1">
+                                <button type="button" class="btn btn-default" v-on:click="showModal(su)" v-bind:disabled="!su.ativo">
                                     <i class="fa fa-cog"></i>
                                 </button>
                             </td>
@@ -139,7 +145,7 @@
                                                    v-bind:value="contadores[su.servico.id]">
                                         </td>
                                         <td>
-                                            <button type="button" class="btn btn-default" title="{% trans %}Reiniciar contagem{% endtrans %}" 
+                                            <button type="button" class="btn btn-default" title="{% trans %}Reiniciar contagem do serviço{% endtrans %}" 
                                                     v-on:click="reiniciarContator(su.servico.id)">
                                                 <i class="fa fa-refresh"></i>
                                             </button>
@@ -147,12 +153,20 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <p>
-                                <button class="btn btn-danger" v-on:click="reiniciarSenhas">
-                                    <i class="fa fa-warning"></i>
-                                    {% trans %}Reiniciar todas senhas{% endtrans %}
-                                </button>
-                            </p>
+                                                    
+                            <hr>
+                            
+                            <div class="row">
+                                <div class="col-xs-4">
+                                    <button class="btn btn-danger" v-on:click="reiniciarSenhas">
+                                        <i class="fa fa-warning"></i>
+                                        {% trans %}Reiniciar todas senhas{% endtrans %}
+                                    </button>
+                                </div>
+                                <div class="col-xs-8">
+                                    <div class="help-block" style="margin-top:0">Move todos os atendimentos para o histórico e reinicia a contagem de todos serviços.</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -198,7 +212,7 @@
                             <div class="panel-footer">
                                 <div class="input-group">
                                     <select class="form-control" v-model="servicoUsuario">
-                                        <option v-for="su in servicos" v-bind:value="su">
+                                        <option v-for="su in availableServices[usuario.id]" v-bind:value="su">
                                             {% verbatim %}
                                                 {{ su.sigla }} - {{ su.servico.nome }}
                                             {% endverbatim %}
@@ -232,7 +246,7 @@
 
                                 <div class="row">
                                     <div class="col-xs-6">
-                                        {{ form_row(form.status, { label: 'Status'|trans, attr: { 'v-model': 'servicoUnidade.status' } }) }}
+                                        {{ form_row(form.ativo, { label: 'Situação'|trans, attr: { 'v-model': 'servicoUnidade.ativo' } }) }}
                                     </div>
                                     <div class="col-xs-6">
                                         {{ form_row(form.prioridade, { label: 'Permitir prioridade'|trans, attr: { 'v-model': 'servicoUnidade.prioridade' } }) }}

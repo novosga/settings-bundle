@@ -2,7 +2,7 @@
  * Novo SGA - Settings
  * @author Rogerio Lino <rogeriolino@gmail.com>
  */
-(function() {
+(function () {
     'use strict'
     
     Vue.directive('bs-switch', {
@@ -26,11 +26,29 @@
             servicoUsuario: null,
             servicoUnidade: null
         },
+        computed: {
+            availableServices: function () {
+                var map = {}, self = this;
+                
+                this.usuarios.forEach(function (user) {
+                    map[user.id] = (self.servicos || []).filter(function (su) {
+                        var userServices = user.servicos || [], available = true;
+                        
+                        for (var i = 0; i < userServices.length; i++) {
+                            if (userServices[i].servico.id === su.servico.id) {
+                                available = false;
+                                break;
+                            }
+                        }
+                        
+                        return available;
+                    });
+                });
+                
+                return map;
+            }
+        },
         methods: {
-            teste: function (su) {
-                su.status = !su.status;
-            },
-            
             loadServicos: function () {
                 var self = this;
                 App.ajax({
@@ -125,7 +143,7 @@
                 });
             },
             
-            addServicoUsuario: function(usuario) {
+            addServicoUsuario: function (usuario) {
                 if (!this.servicoUsuario) {
                     return;
                 }
@@ -147,7 +165,7 @@
                 });
             },
             
-            removeServicoUsuario: function(usuario, servicoUnidade) {
+            removeServicoUsuario: function (usuario, servicoUnidade) {
                 var self = this;
                 
                 App.ajax({
