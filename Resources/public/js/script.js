@@ -93,7 +93,6 @@
                 var self = this;
                 
                 this.updateServico(this.servicoUnidade).then(function () {
-                    self.servicoUnidade = {};
                     self.loadServicos();
                 });
             },

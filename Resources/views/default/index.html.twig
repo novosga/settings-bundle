@@ -233,7 +233,7 @@
         </div>
 
         <div id="dialog-servico" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     {{ form_start(form, { attr: { 'v-on:submit.prevent': 'updateServicoFromModal' } }) }}
                         <div class="modal-header">
@@ -241,45 +241,41 @@
                             <h4 class="modal-title">{% trans %}Serviço{% endtrans %}</h4>
                         </div>
                         <div class="modal-body" v-if="servicoUnidade">
-                            <fieldset>
-                                <legend>{% trans %}Triagem{% endtrans %}</legend>
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <fieldset>
+                                        <legend>{% trans %}Triagem{% endtrans %}</legend>
 
-                                <div class="row">
-                                    <div class="col-xs-6">
-                                        {{ form_row(form.ativo, { label: 'Situação'|trans, attr: { 'v-model': 'servicoUnidade.ativo' } }) }}
-                                    </div>
-                                    <div class="col-xs-6">
-                                        {{ form_row(form.prioridade, { label: 'Permitir prioridade'|trans, attr: { 'v-model': 'servicoUnidade.prioridade' } }) }}
-                                    </div>
-                                    <div class="col-xs-4">
-                                        {{ form_row(form.sigla, { attr: { 'v-model': 'servicoUnidade.sigla', 'v-on:input': 'uppercase(servicoUnidade)' } }) }}
-                                    </div>
-                                    <div class="col-xs-4">
-                                        {{ form_row(form.local, { attr: { 'v-model': 'servicoUnidade.local' } }) }}
-                                    </div>
-                                    <div class="col-xs-4">
-                                        {{ form_row(form.peso, { attr: { 'v-model': 'servicoUnidade.peso' } }) }}
-                                    </div>
-                                    <div class="col-xs-12">
-                                        {{ form_row(form.mensagem, { attr: { 'v-model': 'servicoUnidade.mensagem' } }) }}
-                                    </div>
+                                        <div class="row">
+                                            <div class="col-xs-6">
+                                                {{ form_row(form.sigla, { attr: { 'v-model': 'servicoUnidade.sigla', 'v-on:input': 'uppercase(servicoUnidade)' } }) }}
+                                                
+                                                {{ form_row(form.local, { attr: { 'v-model': 'servicoUnidade.local' } }) }}
+                                                
+                                                {{ form_row(form.peso, { attr: { 'v-model': 'servicoUnidade.peso' } }) }}
+                                                
+                                                {{ form_row(form.ativo, { label: 'Ativo'|trans, attr: { 'v-model': 'servicoUnidade.ativo' } }) }}
+
+                                                {{ form_row(form.prioridade, { label: 'Permitir prioridade'|trans, attr: { 'v-model': 'servicoUnidade.prioridade' } }) }}
+                                            </div>
+                                            <div class="col-xs-6">
+                                                {{ form_row(form.mensagem, { attr: { 'v-model': 'servicoUnidade.mensagem', rows: 12 } }) }}
+                                            </div>
+                                        </div>
+                                    </fieldset>
                                 </div>
-                            </fieldset>
-                            <fieldset>
-                                <legend>{% trans %}Contador{% endtrans %}</legend>
+                                <div class="col-sm-4">
+                                    <fieldset>
+                                        <legend>{% trans %}Contador{% endtrans %}</legend>
 
-                                <div class="row">
-                                    <div class="col-xs-4">
                                         {{ form_row(form.numeroInicial, { attr: { 'v-model': 'servicoUnidade.numeroInicial' } }) }}
-                                    </div>
-                                    <div class="col-xs-4">
+                                        
                                         {{ form_row(form.numeroFinal, { attr: { 'v-model': 'servicoUnidade.numeroFinal' } }) }}
-                                    </div>
-                                    <div class="col-xs-4">
+                                        
                                         {{ form_row(form.incremento, { attr: { 'v-model': 'servicoUnidade.incremento' } }) }}
-                                    </div>
+                                    </fieldset>
                                 </div>
-                            </fieldset>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-primary">
