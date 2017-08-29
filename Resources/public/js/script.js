@@ -127,6 +127,10 @@
                 });
             },
             
+            limparSenhas: function () {
+                alert('TODO');
+            },
+            
             reiniciarSenhas: function () {
                 if (!confirm(desejaReiniciarSenhas)) {
                     return;
