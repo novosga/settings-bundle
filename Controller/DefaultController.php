@@ -18,8 +18,6 @@ use Novosga\Entity\Servico;
 use Novosga\Entity\Usuario;
 use Novosga\Entity\Contador;
 use Novosga\Http\Envelope;
-use Novosga\Service\AtendimentoService;
-use Novosga\Service\ServicoService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -52,7 +50,8 @@ class DefaultController extends Controller
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
         
-        $service = new ServicoService($em);
+        /* @var $servicoService Novosga\Service\ServicoService */
+        $servicoService = $this->get('Novosga\Service\ServicoService');
 
         // locais disponiveis
         $locais = $em
@@ -64,11 +63,11 @@ class DefaultController extends Controller
                     ->getRepository(Lotacao::class)
                     ->getLotacoesUnidade($unidade);
         
-        $servicos = $service->servicosUnidade($unidade);
+        $servicos = $servicoService->servicosUnidade($unidade);
         
-        $usuarios = array_map(function (Lotacao $lotacao) use ($service, $unidade, $servicos) {
+        $usuarios = array_map(function (Lotacao $lotacao) use ($servicoService, $unidade, $servicos) {
             $usuario = $lotacao->getUsuario();
-            $servicosUsuario = $service->servicosUsuario($unidade, $usuario);
+            $servicosUsuario = $servicoService->servicosUsuario($unidade, $usuario);
             
             $data  = $usuario->jsonSerialize();
             $data['servicos'] = [];
@@ -87,11 +86,11 @@ class DefaultController extends Controller
 
         if (count($locais)) {
             $local = $locais[0];
-            $service->updateUnidade($unidade, $local, self::DEFAULT_SIGLA);
+            $servicoService->updateUnidade($unidade, $local, self::DEFAULT_SIGLA);
         }
         
-        $form = $this->createForm(ServicoUnidadeType::class);
-        $inlineForm = $this->createForm(ServicoUnidadeType::class);
+        $form          = $this->createForm(ServicoUnidadeType::class);
+        $inlineForm    = $this->createForm(ServicoUnidadeType::class);
         $impressaoForm = $this->createForm(ImpressaoType::class, $unidade->getImpressao());
 
         return $this->render('NovosgaSettingsBundle:default:index.html.twig', [
@@ -113,12 +112,12 @@ class DefaultController extends Controller
      */
     public function servicosAction(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
         
-        $service = new ServicoService($em);
-        $servicos = $service->servicosUnidade($unidade);
+        /* @var $servicoService Novosga\Service\ServicoService */
+        $servicoService = $this->get('Novosga\Service\ServicoService');
+        $servicos = $servicoService->servicosUnidade($unidade);
         
         $envelope = new Envelope();
         $envelope->setData($servicos);
@@ -172,8 +171,9 @@ class DefaultController extends Controller
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
         
-        $service = new ServicoService($em);
-        $su = $service->servicoUnidade($unidade, $id);
+        /* @var $servicoService Novosga\Service\ServicoService */
+        $servicoService = $this->get('Novosga\Service\ServicoService');
+        $su = $servicoService->servicoUnidade($unidade, $id);
         
         $form = $this->createForm(ServicoUnidadeType::class, $su);
         $form->submit($data);
@@ -211,7 +211,6 @@ class DefaultController extends Controller
             $em->flush();
             
             $envelope->setData($unidade);
-            
         } catch (Exception $e) {
             $envelope->exception($e);
         }
@@ -235,8 +234,9 @@ class DefaultController extends Controller
             $usuario = $this->getUser();
             $unidade = $usuario->getLotacao()->getUnidade();
             
-            $service = new ServicoService($em);
-            $su = $service->servicoUnidade($unidade, $servico);
+            /* @var $servicoService Novosga\Service\ServicoService */
+            $servicoService = $this->get('Novosga\Service\ServicoService');
+            $su = $servicoService->servicoUnidade($unidade, $servico);
             
             if (!$su) {
                 throw new Exception(_('Serviço inválido'));
@@ -253,7 +253,6 @@ class DefaultController extends Controller
             $em->flush();
             
             $envelope->setData($contador);
-            
         } catch (Exception $e) {
             $envelope->exception($e);
         }
@@ -276,8 +275,9 @@ class DefaultController extends Controller
             $usuario = $this->getUser();
             $unidade = $usuario->getLotacao()->getUnidade();
             
-            $service = new AtendimentoService($em);
-            $service->acumularAtendimentos($unidade);
+            /* @var $atendimentoService \Novosga\Service\AtendimentoService */
+            $atendimentoService = $this->get('Novosga\Service\AtendimentoService');
+            $atendimentoService->acumularAtendimentos($unidade);
         } catch (Exception $e) {
             $envelope->exception($e);
         }
@@ -298,8 +298,9 @@ class DefaultController extends Controller
         $envelope = new Envelope();
         
         try {
-            $service = new ServicoService($em);
-            $servicoUnidade = $service->servicoUnidade($unidade, $servico);
+            /* @var $servicoService Novosga\Service\ServicoService */
+            $servicoService = $this->get('Novosga\Service\ServicoService');
+            $servicoUnidade = $servicoService->servicoUnidade($unidade, $servico);
             
             if (!$servicoUnidade) {
                 throw new Exception(_('Serviço inválido'));
@@ -312,7 +313,6 @@ class DefaultController extends Controller
             
             $em->persist($servicoUsuario);
             $em->flush();
-            
         } catch (Exception $e) {
             $envelope->exception($e);
         }
@@ -333,8 +333,9 @@ class DefaultController extends Controller
         $envelope = new Envelope();
         
         try {
-            $service = new ServicoService($em);
-            $servicoUnidade = $service->servicoUnidade($unidade, $servico);
+            /* @var $servicoService Novosga\Service\ServicoService */
+            $servicoService = $this->get('Novosga\Service\ServicoService');
+            $servicoUnidade = $servicoService->servicoUnidade($unidade, $servico);
             
             if (!$servicoUnidade) {
                 throw new Exception(_('Serviço inválido'));
@@ -349,7 +350,6 @@ class DefaultController extends Controller
             
             $em->remove($servicoUsuario);
             $em->flush();
-            
         } catch (Exception $e) {
             $envelope->exception($e);
         }
