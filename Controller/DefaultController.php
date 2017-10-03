@@ -93,7 +93,7 @@ class DefaultController extends Controller
         $inlineForm    = $this->createForm(ServicoUnidadeType::class);
         $impressaoForm = $this->createForm(ImpressaoType::class, $unidade->getImpressao());
 
-        return $this->render('NovosgaSettingsBundle:default:index.html.twig', [
+        return $this->render('@NovosgaSettings/default/index.html.twig', [
             'unidade' => $unidade,
             'locais' => $locais,
             'usuarios' => $usuarios,
