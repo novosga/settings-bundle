@@ -1,17 +1,13 @@
 /**
- * Novo SGA - Unidade
+ * Novo SGA - Configuraçao unidade
  * @author Rogerio Lino <rogeriolino@gmail.com>
  */
-
-
-#servicos td.sigla {
-    width: 60px;
+body>section {
+    padding: 20px 10px;
 }
 
-#servicos td.sigla input { text-align: center; }
-
-#servicos td.nome .input-group {
-    width: 100%;
+.tab-content {
+    padding: 20px 0;
 }
 
 .paineis {
