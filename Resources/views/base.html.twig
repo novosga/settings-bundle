@@ -2,4 +2,9 @@
 
 {% block title -%}
     {% trans %}Configurações{% endtrans %}
-{%- endblock %} 
+{%- endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link type="text/css" rel="stylesheet" href="{{ asset('bundles/novosgasettings/css/style.css') }}">
+{% endblock %}

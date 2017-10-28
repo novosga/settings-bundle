@@ -5,16 +5,6 @@
 (function () {
     'use strict'
     
-    Vue.directive('bs-switch', {
-        inserted: function (el) {
-            $(el).bootstrapSwitch().on('switchChange.bootstrapSwitch', function () {
-                var e = document.createEvent('HTMLEvents');
-                e.initEvent('change', true, true);
-                el.dispatchEvent(e);
-            });
-        }
-    });
-    
     var app = new Vue({
         el: '#settings',
         data: {
@@ -77,7 +67,7 @@
             },
             
             updateServico: function (servicoUnidade) {
-                var data = $.extend({}, servicoUnidade);
+                var data = Object.assign({}, servicoUnidade);
                 
                 data.sigla = data.sigla.toUpperCase();
                 delete data.servico;
@@ -94,11 +84,12 @@
                 
                 this.updateServico(this.servicoUnidade).then(function () {
                     self.loadServicos();
+                    $('#dialog-servico').modal('hide');
                 });
             },
             
             showModal: function (su) {
-                this.servicoUnidade = $.extend({}, su);
+                this.servicoUnidade = Object.assign({}, su);
                 
                 $('#dialog-servico').modal('show');
             },
@@ -108,7 +99,7 @@
             },
             
             updateImpressao: function () {
-                var data = $.extend({}, this.impressao);
+                var data = Object.assign({}, this.impressao);
                 
                 return App.ajax({
                     url: App.url('/novosga.settings/update_impressao'),

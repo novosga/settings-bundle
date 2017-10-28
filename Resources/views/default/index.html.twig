@@ -36,40 +36,40 @@
         <div class="tab-content">
             <div id="tab-servicos" class="tab-pane active">
                 <table class="table" id="servicos">
-                    <thead>
-                        <tr class="row">
-                            <th class="col-1">
+                    <thead class="thead-light">
+                        <tr>
+                            <th class="ativo">
+                                {% trans %}Ativo{% endtrans %}
+                            </th>
+                            <th class="sigla">
                                 {% trans %}Sigla{% endtrans %}
                             </th>
-                            <th class="col-4">
+                            <th>
                                 {% trans %}Serviço{% endtrans %}
                             </th>
-                            <th class="col-3">
+                            <th>
                                 {% trans %}Local{% endtrans %}
                             </th>
-                            <th class="col-3">
-                                {% trans %}Situação{% endtrans %}
-                            </th>
-                            <th class="col-1"></th>
+                            <th></th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr v-for="su in servicos" class="row">
-                            <td class="col-1">
+                    <tbody v-cloak>
+                        <tr v-for="su in servicos">
+                            <td class="text-center">
+                                {{ form_widget(inlineForm.ativo, { label: false, attr: { 'v-model': 'su.ativo', 'v-on:change': 'updateServico(su)' } }) }}
+                            </td>
+                            <td>
                                 {{ form_row(inlineForm.sigla, { label: false, attr: { 'v-model': 'su.sigla', 'v-on:input': 'uppercase(su)', 'v-on:blur': 'updateServico(su)', 'v-bind:disabled': '!su.ativo' } }) }}
                             </td>
-                            <td class="col-4">
+                            <td>
                                 {% verbatim %}
                                     {{su.servico.nome}}
                                 {% endverbatim %}
                             </td>
-                            <td class="col-3">
+                            <td>
                                 {{ form_row(inlineForm.local, { label: false, attr: { 'v-model': 'su.local', 'v-on:change': 'updateServico(su)', 'v-bind:disabled': '!su.ativo' } }) }}
                             </td>
-                            <td class="col-3">
-                                {{ form_widget(inlineForm.ativo, { label: false, attr: { 'v-model': 'su.ativo', 'v-on:change': 'updateServico(su)',  'v-bs-switch': '1' } }) }}
-                            </td>
-                            <td class="col-1 text-right">
+                            <td class="text-right">
                                 <button type="button" class="btn btn-secondary" v-on:click="showModal(su)">
                                     <i class="fa fa-cog"></i>
                                 </button>
@@ -91,19 +91,17 @@
                                         {{ form_row(impressaoForm.rodape, { label: 'Rodapé', attr: { 'v-model': 'impressao.rodape' } }) }}
                                     </div>
                                     <div class="col-5">
-                                        <h4>
-                                            {% trans %}Exibir{% endtrans %}
-                                        </h4>
+                                        <span class="col-12">&nbsp;</span>
 
-                                        {{ form_row(impressaoForm.exibirData, { label: 'Data', attr: { 'v-model': 'impressao.exibirData' } }) }}
+                                        {{ form_row(impressaoForm.exibirData, { label: 'Exibir data', attr: { 'v-model': 'impressao.exibirData' } }) }}
 
-                                        {{ form_row(impressaoForm.exibirPrioridade, { label: 'Prioridade', attr: { 'v-model': 'impressao.exibirPrioridade' } }) }}
+                                        {{ form_row(impressaoForm.exibirPrioridade, { label: 'Exibir prioridade', attr: { 'v-model': 'impressao.exibirPrioridade' } }) }}
 
-                                        {{ form_row(impressaoForm.exibirNomeUnidade, { label: 'Nome da unidade', attr: { 'v-model': 'impressao.exibirNomeUnidade' } }) }}
+                                        {{ form_row(impressaoForm.exibirNomeUnidade, { label: 'Exibir nome da unidade', attr: { 'v-model': 'impressao.exibirNomeUnidade' } }) }}
 
-                                        {{ form_row(impressaoForm.exibirNomeServico, { label: 'Nome do serviço', attr: { 'v-model': 'impressao.exibirNomeServico' } }) }}
+                                        {{ form_row(impressaoForm.exibirNomeServico, { label: 'Exibir nome do serviço', attr: { 'v-model': 'impressao.exibirNomeServico' } }) }}
 
-                                        {{ form_row(impressaoForm.exibirMensagemServico, { label: 'Mensagem do serviço', attr: { 'v-model': 'impressao.exibirMensagemServico' } }) }}
+                                        {{ form_row(impressaoForm.exibirMensagemServico, { label: 'Exibir mensagem do serviço', attr: { 'v-model': 'impressao.exibirMensagemServico' } }) }}
                                     </div>
                                 </div>
 
@@ -118,67 +116,65 @@
                     <div class="col-5">
                         <div class="card">
                             <div class="card-header text-white bg-danger">
+                                <i class="fa fa-warning"></i> 
                                 {% trans %}Zona de perigo{% endtrans %}
                             </div>
+                            <table class="table" id="servicos">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            {% trans %}Serviço{% endtrans %}
+                                        </th>
+                                        <th>
+                                            {% trans %}Número atual{% endtrans %}
+                                        </th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="su in servicos">
+                                        <td class="nome">
+                                            {%- verbatim -%}
+                                                {{su.sigla}} - {{su.servico.nome}}
+                                            {%- endverbatim -%}
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control" disabled
+                                                   v-bind:value="contadores[su.servico.id]">
+                                        </td>
+                                        <td class="text-right">
+                                            <button type="button" class="btn btn-secondary" title="{% trans %}Reiniciar contagem do serviço{% endtrans %}" 
+                                                    v-on:click="reiniciarContator(su.servico.id)">
+                                                <i class="fa fa-refresh"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                             <div class="card-body">
-                                <table class="table" id="servicos">
-                                    <thead>
-                                        <tr>
-                                            <th>
-                                                {% trans %}Serviço{% endtrans %}
-                                            </th>
-                                            <th>
-                                                {% trans %}Número atual{% endtrans %}
-                                            </th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="su in servicos">
-                                            <td class="nome">
-                                                {%- verbatim -%}
-                                                    {{su.sigla}} - {{su.servico.nome}}
-                                                {%- endverbatim -%}
-                                            </td>
-                                            <td>
-                                                <input type="text" class="form-control" disabled
-                                                       v-bind:value="contadores[su.servico.id]">
-                                            </td>
-                                            <td>
-                                                <button type="button" class="btn btn-secondary" title="{% trans %}Reiniciar contagem do serviço{% endtrans %}" 
-                                                        v-on:click="reiniciarContator(su.servico.id)">
-                                                    <i class="fa fa-refresh"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-                                <hr>
-
                                 <div class="row">
-                                    <div class="col-4">
-                                        <button class="btn btn-danger" v-on:click="reiniciarSenhas">
-                                            <i class="fa fa-warning"></i>
-                                            {% trans %}Reiniciar todas senhas{% endtrans %}
-                                        </button>
-                                    </div>
                                     <div class="col-8">
                                         <div class="help-block" style="margin-top:0">Move todos os atendimentos para o histórico e reinicia a contagem de todos serviços.</div>
+                                    </div>
+                                    <div class="col-4 text-right">
+                                        <button class="btn btn-danger" v-on:click="reiniciarSenhas">
+                                            <i class="fa fa-refresh"></i>
+                                            {% trans %}Reiniciar todas senhas{% endtrans %}
+                                        </button>
                                     </div>
                                 </div>
 
                                 <hr>
 
                                 <div class="row">
-                                    <div class="col-4">
-                                        <button class="btn btn-danger" v-on:click="limparSenhas">
-                                            <i class="fa fa-warning"></i>
-                                            {% trans %}Limpar dados{% endtrans %}
-                                        </button>
-                                    </div>
                                     <div class="col-8">
                                         <div class="help-block" style="margin-top:0">Remover todo histórico de atendimentos da unidade.</div>
+                                    </div>
+                                    <div class="col-4 text-right">
+                                        <button class="btn btn-danger" v-on:click="limparSenhas">
+                                            <i class="fa fa-trash"></i>
+                                            {% trans %}Limpar dados{% endtrans %}
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -188,42 +184,42 @@
             </div>
             <div id="tab-atendimento" class="tab-pane">
                 <div class="row">
-                    <div class="col-md-4 col-sm-6" v-for="usuario in usuarios">
+                    <div class="col-lg-3 col-md-4 col-sm-6" v-for="usuario in usuarios">
                         <div class="card">
                             <div class="card-header">
                                 {% verbatim %}
                                     {{ usuario.nome }} ({{ usuario.login }})
                                 {% endverbatim %}
                             </div>
-                            <div class="card-body">
-                                <table class="table" v-if="usuario.servicos.length">
-                                    <thead>
-                                        <tr>
-                                            <th>
-                                                {% trans %}Serviços{% endtrans %}
-                                            </th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="su in usuario.servicos">
-                                            <td>
-                                                {% verbatim %}
-                                                    {{ su.sigla }} - {{ su.servico.nome }}
-                                                {% endverbatim %}
-                                            </td> 
-                                            <td class="text-right">
-                                                <button type="button" class="btn btn-danger" v-on:click="removeServicoUsuario(usuario, su)">
-                                                    <i class="fa fa-trash"></i>
-                                                </button>
-                                            </td> 
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <p v-else class="text-muted">
-                                    {% trans %}Nenhum serviço{% endtrans %}
-                                </p>
-                            </div>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            {% trans %}Serviços{% endtrans %}
+                                        </th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="su in usuario.servicos">
+                                        <td>
+                                            {% verbatim %}
+                                                {{ su.sigla }} - {{ su.servico.nome }}
+                                            {% endverbatim %}
+                                        </td> 
+                                        <td class="text-right">
+                                            <button type="button" class="btn btn-danger" v-on:click="removeServicoUsuario(usuario, su)">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </td> 
+                                    </tr>
+                                    <tr v-if="usuario.servicos.length === 0">
+                                        <td colspan="2" class="text-muted">
+                                            {% trans %}Nenhum serviço{% endtrans %}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                             <div class="panel-footer">
                                 <div class="input-group">
                                     <select class="form-control" v-model="servicoUsuario[usuario.id]">
@@ -270,7 +266,10 @@
                                         {{ form_row(form.mensagem, { attr: { 'v-model': 'servicoUnidade.mensagem', rows: 10 } }) }}
                                     </div>
                                     <div class="col-4">
+                                        <span class="col-12">&nbsp;</span>
+                                        
                                         {{ form_row(form.ativo, { label: 'Ativo'|trans, attr: { 'v-model': 'servicoUnidade.ativo' } }) }}
+                                        
                                         {{ form_row(form.prioridade, { label: 'Permitir prioridade'|trans, attr: { 'v-model': 'servicoUnidade.prioridade' } }) }}
                                     </div>
                                 </div>
@@ -290,6 +289,9 @@
                             </fieldset>
                         </div>
                         <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                {% trans %}Cancelar{% endtrans %}
+                            </button>
                             <button type="submit" class="btn btn-primary">
                                 <i class="fa fa-save"></i>
                                 {% trans %}Salvar{% endtrans %}
@@ -320,15 +322,8 @@
     </div>
 {% endblock %}
 
-{% block stylesheets %}
-    {{ parent() }}
-    <link rel="stylesheet" type="text/css" href="{{ asset('bundles/novosgasettings/css/bootstrap-switch.min.css') }}">
-    <link type="text/css" rel="stylesheet" href="{{ asset('bundles/novosgasettings/css/style.css') }}">
-{% endblock %}    
-
 {% block javascripts %}
     {{ parent() }}
-    <script type="text/javascript" src="{{ asset('bundles/novosgasettings/js/bootstrap-switch.min.js') }}"></script>
     <script>
         var locais = {{ locais|json_encode()|raw }},
             usuarios = {{ usuarios|json_encode()|raw }},
