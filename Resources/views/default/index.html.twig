@@ -80,7 +80,7 @@
             </div>
             <div id="tab-triagem" class="tab-pane">
                 <div class="row">
-                    <div class="col-7">
+                    <div class="col-lg-7">
                         <fieldset>
                             <legend>{% trans %}Impressão{% endtrans %}</legend>
                             {{ form_start(impressaoForm, { attr: { 'v-on:submit.prevent': 'updateImpressao' } }) }}
@@ -113,7 +113,7 @@
                             {{ form_end(impressaoForm) }}
                         </fieldset>
                     </div>
-                    <div class="col-5">
+                    <div class="col-lg-5">
                         <div class="card">
                             <div class="card-header text-white bg-danger">
                                 <i class="fa fa-warning"></i> 
@@ -151,33 +151,32 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-8">
-                                        <div class="help-block" style="margin-top:0">Move todos os atendimentos para o histórico e reinicia a contagem de todos serviços.</div>
-                                    </div>
-                                    <div class="col-4 text-right">
-                                        <button class="btn btn-danger" v-on:click="reiniciarSenhas">
-                                            <i class="fa fa-refresh"></i>
-                                            {% trans %}Reiniciar todas senhas{% endtrans %}
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <hr>
-
-                                <div class="row">
-                                    <div class="col-8">
-                                        <div class="help-block" style="margin-top:0">Remover todo histórico de atendimentos da unidade.</div>
-                                    </div>
-                                    <div class="col-4 text-right">
-                                        <button class="btn btn-danger" v-on:click="limparSenhas">
-                                            <i class="fa fa-trash"></i>
-                                            {% trans %}Limpar dados{% endtrans %}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <button class="btn btn-danger btn-block" v-on:click="reiniciarSenhas">
+                                                <i class="fa fa-refresh"></i>
+                                                {% trans %}Reiniciar todas senhas{% endtrans %}
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <div class="help-block" style="margin-top:0">Move todos os atendimentos para o histórico e reinicia a contagem de todos serviços.</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <button class="btn btn-danger btn-block" v-on:click="limparSenhas">
+                                                <i class="fa fa-trash"></i>
+                                                {% trans %}Limpar dados{% endtrans %}
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <div class="help-block" style="margin-top:0">Remover todo histórico de atendimentos da unidade.</div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
