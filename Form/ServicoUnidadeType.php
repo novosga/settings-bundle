@@ -44,12 +44,16 @@ class ServicoUnidadeType extends AbstractType
             ])
             ->add('peso', IntegerType::class)
             ->add('numeroInicial', IntegerType::class)
-            ->add('numeroFinal', IntegerType::class)
+            ->add('numeroFinal', IntegerType::class, [
+                'required' => false
+            ])
             ->add('incremento', IntegerType::class)
             ->add('prioridade', CheckboxType::class, [
                 'required' => false
             ])
-            ->add('mensagem', TextareaType::class)
+            ->add('mensagem', TextareaType::class, [
+                'required' => false
+            ])
         ;
     }
     

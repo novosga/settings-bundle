@@ -194,20 +194,26 @@
                                 <thead>
                                     <tr>
                                         <th>
-                                            {% trans %}Serviços{% endtrans %}
+                                            {% trans %}Serviço{% endtrans %}
+                                        </th>
+                                        <th>
+                                            {% trans %}Peso{% endtrans %}
                                         </th>
                                         <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="su in usuario.servicos">
+                                    <tr v-for="servicoUsuario in usuario.servicos">
                                         <td>
                                             {% verbatim %}
-                                                {{ su.sigla }} - {{ su.servico.nome }}
+                                                {{ servicoUsuario.sigla }} - {{ servicoUsuario.nome }}
                                             {% endverbatim %}
                                         </td> 
+                                        <td style="width: 100px">
+                                            <input type="number" class="form-control" v-model="servicoUsuario.peso" v-on:change="updateServicoUsuario(usuario, servicoUsuario)">
+                                        </td> 
                                         <td class="text-right">
-                                            <button type="button" class="btn btn-danger" v-on:click="removeServicoUsuario(usuario, su)">
+                                            <button type="button" class="btn btn-danger" v-on:click="removeServicoUsuario(usuario, servicoUsuario)">
                                                 <i class="fa fa-trash"></i>
                                             </button>
                                         </td> 
@@ -222,9 +228,9 @@
                             <div class="panel-footer">
                                 <div class="input-group">
                                     <select class="form-control" v-model="servicoUsuario[usuario.id]">
-                                        <option v-for="su in availableServices[usuario.id]" v-bind:value="su">
+                                        <option v-for="servicoUnidade in availableServices[usuario.id]" v-bind:value="servicoUnidade">
                                             {% verbatim %}
-                                                {{ su.sigla }} - {{ su.servico.nome }}
+                                                {{ servicoUnidade.sigla }} - {{ servicoUnidade.servico.nome }}
                                             {% endverbatim %}
                                         </option>
                                     </select>

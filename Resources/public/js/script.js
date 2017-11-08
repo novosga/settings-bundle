@@ -25,7 +25,7 @@
                         var userServices = user.servicos || [], available = true;
                         
                         for (var i = 0; i < userServices.length; i++) {
-                            if (userServices[i].servico.id === su.servico.id) {
+                            if (userServices[i].id === su.servico.id) {
                                 available = false;
                                 break;
                             }
@@ -145,7 +145,7 @@
                 var su = this.servicoUsuario[usuario.id];
                 
                 for (var i = 0; i < usuario.servicos.length; i++) {
-                    if (su.servico.id === usuario.servicos[i].servico.id) {
+                    if (su.servico.id === usuario.servicos[i].id) {
                         return;
                     }
                 }
@@ -153,24 +153,34 @@
                 App.ajax({
                     url: App.url('/novosga.settings/servico_usuario/') + usuario.id + '/' + su.servico.id,
                     type: 'post',
-                    success: function () {
-                        usuario.servicos.push(su);
+                    success: function (response) {
+                        usuario.servicos.push({
+                            id: response.data.servico.id,
+                            sigla: su.sigla,
+                            nome: response.data.servico.nome,
+                            peso: response.data.peso
+                        });
                     }
                 });
             },
             
-            removeServicoUsuario: function (usuario, servicoUnidade) {                
+            removeServicoUsuario: function (usuario, servicoUsuario) {
                 App.ajax({
-                    url: App.url('/novosga.settings/servico_usuario/') + usuario.id + '/' + servicoUnidade.servico.id,
+                    url: App.url('/novosga.settings/servico_usuario/') + usuario.id + '/' + servicoUsuario.id,
                     type: 'delete',
                     success: function () {
-                        for (var i = 0; i < usuario.servicos.length; i++) {
-                            var su = usuario.servicos[i];
-                            if (su.servico.id === servicoUnidade.servico.id) {
-                                usuario.servicos.splice(usuario.servicos.indexOf(su), 1);
-                                break;
-                            }
-                        }
+                        usuario.servicos.splice(usuario.servicos.indexOf(servicoUsuario), 1);
+                    }
+                });
+            },
+            
+            updateServicoUsuario: function (usuario, servicoUsuario) {
+                App.ajax({
+                    url: App.url('/novosga.settings/servico_usuario/') + usuario.id + '/' + servicoUsuario.id,
+                    type: 'put',
+                    data: servicoUsuario,
+                    success: function (response) {
+                        servicoUsuario.peso = response.data.peso;
                     }
                 });
             },

@@ -64,20 +64,25 @@ class DefaultController extends Controller
                     ->getRepository(Lotacao::class)
                     ->getLotacoesUnidade($unidade);
         
-        $servicos = $servicoService->servicosUnidade($unidade);
+        $servicosUnidade = $servicoService->servicosUnidade($unidade);
         
-        $usuarios = array_map(function (Lotacao $lotacao) use ($servicoService, $unidade, $servicos) {
+        $usuarios = array_map(function (Lotacao $lotacao) use ($servicoService, $unidade, $servicosUnidade) {
             $usuario = $lotacao->getUsuario();
             $servicosUsuario = $servicoService->servicosUsuario($unidade, $usuario);
             
             $data  = $usuario->jsonSerialize();
             $data['servicos'] = [];
                     
-            foreach ($servicos as $su) {
+            foreach ($servicosUnidade as $servicoUnidade) {
                 foreach ($servicosUsuario as $servicoUsuario) {
-                    $contains = $servicoUsuario->getServico()->getId() === $su->getServico()->getId();
+                    $contains = $servicoUsuario->getServico()->getId() === $servicoUnidade->getServico()->getId();
                     if ($contains) {
-                        $data['servicos'][] = $su;
+                        $data['servicos'][] = [
+                            'id'    => $servicoUnidade->getServico()->getId(),
+                            'sigla' => $servicoUnidade->getSigla(),
+                            'nome'  => $servicoUnidade->getServico()->getNome(),
+                            'peso'  => $servicoUsuario->getPeso(),
+                        ];
                     }
                 }
             }
@@ -294,6 +299,8 @@ class DefaultController extends Controller
         $em->persist($servicoUsuario);
         $em->flush();
         
+        $envelope->setData($servicoUsuario);
+        
         return $this->json($envelope);
     }
     
@@ -326,6 +333,45 @@ class DefaultController extends Controller
         $em->remove($servicoUsuario);
         $em->flush();
         
+        return $this->json($envelope);
+    }
+    
+    /**
+     * @Route("/servico_usuario/{usuarioId}/{servicoId}", name="novosga_settings_update_servico_usuario")
+     * @ParamConverter("usuario", options={"id" = "usuarioId"})
+     * @ParamConverter("servico", options={"id" = "servicoId"})
+     * @Method("PUT")
+     */
+    public function updateServicoUsuarioAction(Request $request, ServicoService $servicoService, Usuario $usuario, Servico $servico)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $unidade = $this->getUser()->getLotacao()->getUnidade();
+        $envelope = new Envelope();
+        
+        $servicoUnidade = $servicoService->servicoUnidade($unidade, $servico);
+
+        if (!$servicoUnidade) {
+            throw new Exception(_('Serviço inválido'));
+        }
+        
+        $json = json_decode($request->getContent());
+        
+        $servicoUsuario = $em
+                        ->getRepository(ServicoUsuario::class)
+                        ->findOneBy([
+                            'usuario' => $usuario,
+                            'servico' => $servico,
+                            'unidade' => $unidade
+                        ]);
+        
+        if (isset($json->peso) && $json->peso > 0) {
+            $servicoUsuario->setPeso($json->peso);
+            $em->merge($servicoUsuario);
+            $em->flush();
+        }
+        
+        $envelope->setData($servicoUsuario);
+
         return $this->json($envelope);
     }
 }
