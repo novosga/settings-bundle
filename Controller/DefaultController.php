@@ -279,8 +279,12 @@ class DefaultController extends Controller
      * @ParamConverter("servico", options={"id" = "servicoId"})
      * @Method("POST")
      */
-    public function addServicoUsuarioAction(Request $request, ServicoService $servicoService, Usuario $usuario, Servico $servico)
-    {
+    public function addServicoUsuarioAction(
+        Request $request,
+        ServicoService $servicoService,
+        Usuario $usuario,
+        Servico $servico
+    ) {
         $em = $this->getDoctrine()->getManager();
         $unidade = $this->getUser()->getLotacao()->getUnidade();
         $envelope = new Envelope();
@@ -310,8 +314,12 @@ class DefaultController extends Controller
      * @ParamConverter("servico", options={"id" = "servicoId"})
      * @Method("DELETE")
      */
-    public function removeServicoUsuarioAction(Request $request, ServicoService $servicoService, Usuario $usuario, Servico $servico)
-    {
+    public function removeServicoUsuarioAction(
+        Request $request,
+        ServicoService $servicoService,
+        Usuario $usuario,
+        Servico $servico
+    ) {
         $em = $this->getDoctrine()->getManager();
         $unidade = $this->getUser()->getLotacao()->getUnidade();
         $envelope = new Envelope();
@@ -342,8 +350,12 @@ class DefaultController extends Controller
      * @ParamConverter("servico", options={"id" = "servicoId"})
      * @Method("PUT")
      */
-    public function updateServicoUsuarioAction(Request $request, ServicoService $servicoService, Usuario $usuario, Servico $servico)
-    {
+    public function updateServicoUsuarioAction(
+        Request $request,
+        ServicoService $servicoService,
+        Usuario $usuario,
+        Servico $servico
+    ) {
         $em = $this->getDoctrine()->getManager();
         $unidade = $this->getUser()->getLotacao()->getUnidade();
         $envelope = new Envelope();
