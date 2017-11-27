@@ -66,9 +66,12 @@ class DefaultController extends Controller
         
         $servicosUnidade = $servicoService->servicosUnidade($unidade);
         
-        $usuarios = array_map(function (Lotacao $lotacao) use ($servicoService, $unidade, $servicosUnidade) {
+        $usuarios = array_map(function (Lotacao $lotacao) use ($em, $unidade, $servicosUnidade) {
             $usuario = $lotacao->getUsuario();
-            $servicosUsuario = $servicoService->servicosUsuario($unidade, $usuario);
+            
+            $servicosUsuario = $em
+                ->getRepository(ServicoUsuario::class)
+                ->getAll($usuario, $unidade);
             
             $data  = $usuario->jsonSerialize();
             $data['servicos'] = [];
@@ -90,11 +93,6 @@ class DefaultController extends Controller
             return $data;
         }, $lotacoes);
 
-        if (count($locais)) {
-            $local = $locais[0];
-            $servicoService->updateUnidade($unidade, $local, self::DEFAULT_SIGLA);
-        }
-        
         $form          = $this->createForm(ServicoUnidadeType::class);
         $inlineForm    = $this->createForm(ServicoUnidadeType::class);
         $impressaoForm = $this->createForm(ImpressaoType::class, $unidade->getImpressao());
@@ -118,13 +116,165 @@ class DefaultController extends Controller
      */
     public function servicosAction(Request $request, ServicoService $servicoService)
     {
-        $usuario = $this->getUser();
-        $unidade = $usuario->getLotacao()->getUnidade();
+        $ids = explode(',', $request->get('ids'));
         
+        if (empty($ids)) {
+            $ids = [0];
+        }
+        
+        $servicos = $this
+            ->getDoctrine()
+            ->getManager()
+            ->createQueryBuilder()
+            ->select('e')
+            ->from(Servico::class, 'e')
+            ->where('e.mestre IS NULL')
+            ->andWhere('e.deletedAt IS NULL')
+            ->andWhere('e.id NOT IN (:ids)')
+            ->orderBy('e.nome', 'ASC')
+            ->setParameters([
+                'ids' => $ids
+            ])
+            ->getQuery()
+            ->getResult();
+        
+        $envelope = new Envelope();
+        $envelope->setData($servicos);
+        
+        return $this->json($envelope);
+    }
+    
+    /**
+     * @param Request $request
+     * @return Response
+     *
+     * @Route("/servicos_unidade", name="novosga_settings_servicos_unidade")
+     * @Method("GET")
+     */
+    public function servicosUnidadeAction(Request $request, ServicoService $servicoService)
+    {
+        $usuario  = $this->getUser();
+        $unidade  = $usuario->getLotacao()->getUnidade();
         $servicos = $servicoService->servicosUnidade($unidade);
         
         $envelope = new Envelope();
         $envelope->setData($servicos);
+        
+        return $this->json($envelope);
+    }
+    
+    /**
+     * @param Request $request
+     * @return Response
+     *
+     * @Route("/servicos_unidade", name="novosga_settings_add_servico_unidade")
+     * @Method("POST")
+     */
+    public function addServicoAction(Request $request, ServicoService $servicoService)
+    {
+        $json    = $request->getContent();
+        $data    = json_decode($json, true);
+        $ids     = $data['ids'] ?? [];
+        $unidade = $this->getUser()->getLotacao()->getUnidade();
+        $em      = $this->getDoctrine()->getManager();
+        
+        if (!is_array($ids)) {
+            $ids = [];
+        }
+        
+        // locais disponiveis
+        $locais = $em
+                    ->getRepository(Local::class)
+                    ->findBy([], ['nome' => 'ASC']);
+        
+        if (empty($locais)) {
+            throw new \Exception('Nenhum local disponível');
+        }
+        
+        foreach ($ids as $id) {
+            $servico = $em->find(Servico::class, $id);
+
+            if ($servico) {
+                $su = new ServicoUnidade();
+                $su->setUnidade($unidade);
+                $su->setServico($servico);
+                $su->setIncremento(1);
+                $su->setLocal($locais[0]);
+                $su->setMensagem('');
+                $su->setNumeroInicial(1);
+                $su->setPeso(1);
+                $su->setPrioridade(true);
+                $su->setSigla(self::DEFAULT_SIGLA);
+                $su->setAtivo(false);
+
+                $em->persist($su);
+                $em->flush();
+            }
+        }
+        
+        $envelope = new Envelope();
+        
+        return $this->json($envelope);
+    }
+    
+    /**
+     * @Route("/servicos_unidade/{id}", name="novosga_settings_remove_servico_unidade")
+     * @Method("DELETE")
+     */
+    public function removeServicoUnidadeAction(Request $request, Servico $servico)
+    {
+        $unidade  = $this->getUser()->getLotacao()->getUnidade();
+        $envelope = new Envelope();
+        
+        $su = $this
+            ->getDoctrine()
+            ->getManager()
+            ->getRepository(ServicoUnidade::class)
+            ->get($unidade, $servico);
+
+        if (!$su) {
+            throw new Exception(_('Serviço inválido'));
+        }
+
+        if ($su->isAtivo()) {
+            throw new Exception(_('Não pode remover um serviço ativo'));
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($su);
+        $em->flush();
+        
+        return $this->json($envelope);
+    }
+    
+    /**
+     * @param Request $request
+     * @return Response
+     *
+     * @Route("/servicos_unidade/{id}", name="novosga_settings_update_servicos_unidade")
+     * @Method("PUT")
+     */
+    public function updateServicoAction(Request $request, Servico $servico)
+    {
+        $json = $request->getContent();
+        $data = json_decode($json, true);
+        
+        $em      = $this->getDoctrine()->getManager();
+        $usuario = $this->getUser();
+        $unidade = $usuario->getLotacao()->getUnidade();
+        
+        $su = $em
+            ->getRepository(ServicoUnidade::class)
+            ->get($unidade, $servico);
+        
+        $form = $this->createForm(ServicoUnidadeType::class, $su);
+        $form->submit($data);
+        
+        $em->merge($su);
+        $em->flush();
+        
+        $envelope = new Envelope();
+        $envelope->setData($su);
         
         return $this->json($envelope);
     }
@@ -155,36 +305,6 @@ class DefaultController extends Controller
         
         $envelope = new Envelope();
         $envelope->setData($contadores);
-        
-        return $this->json($envelope);
-    }
-    
-    /**
-     * @param Request $request
-     * @return Response
-     *
-     * @Route("/servicos/{id}", name="novosga_settings_servicos_update")
-     * @Method("POST")
-     */
-    public function updateServicoAction(Request $request, ServicoService $servicoService, $id)
-    {
-        $json = $request->getContent();
-        $data = json_decode($json, true);
-        
-        $em = $this->getDoctrine()->getManager();
-        $usuario = $this->getUser();
-        $unidade = $usuario->getLotacao()->getUnidade();
-        
-        $su = $servicoService->servicoUnidade($unidade, $id);
-        
-        $form = $this->createForm(ServicoUnidadeType::class, $su);
-        $form->submit($data);
-        
-        $em->merge($su);
-        $em->flush();
-        
-        $envelope = new Envelope();
-        $envelope->setData($su);
         
         return $this->json($envelope);
     }
@@ -224,7 +344,7 @@ class DefaultController extends Controller
      * @Route("/reiniciar/{id}", name="novosga_settings_reiniciar_contador")
      * @ Method("POST")
      */
-    public function reiniciarContadorAction(Request $request, ServicoService $servicoService, Servico $servico)
+    public function reiniciarContadorAction(Request $request, Servico $servico)
     {
         $envelope = new Envelope();
         
@@ -233,7 +353,9 @@ class DefaultController extends Controller
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
 
-        $su = $servicoService->servicoUnidade($unidade, $servico);
+        $su = $em
+            ->getRepository(ServicoUnidade::class)
+            ->get($unidade, $servico);
 
         if (!$su) {
             throw new Exception(_('Serviço inválido'));
@@ -250,6 +372,26 @@ class DefaultController extends Controller
         $em->flush();
 
         $envelope->setData($contador);
+
+        return $this->json($envelope);
+    }
+
+    /**
+     * @param Request $request
+     * @return Response
+     *
+     * @Route("/limpar", name="novosga_settings_limpar_dados")
+     * @ Method("POST")
+     */
+    public function limparDadosAction(Request $request, AtendimentoService $atendimentoService)
+    {
+        $usuario = $this->getUser();
+        $unidade = $usuario->getLotacao()->getUnidade();
+        
+        $atendimentoService->limparDados($unidade);
+        
+        $envelope = new Envelope();
+        $envelope->setData(true);
 
         return $this->json($envelope);
     }
@@ -279,25 +421,24 @@ class DefaultController extends Controller
      * @ParamConverter("servico", options={"id" = "servicoId"})
      * @Method("POST")
      */
-    public function addServicoUsuarioAction(
-        Request $request,
-        ServicoService $servicoService,
-        Usuario $usuario,
-        Servico $servico
-    ) {
+    public function addServicoUsuarioAction(Request $request, Usuario $usuario, Servico $servico)
+    {
         $em = $this->getDoctrine()->getManager();
         $unidade = $this->getUser()->getLotacao()->getUnidade();
         $envelope = new Envelope();
         
-        $servicoUnidade = $servicoService->servicoUnidade($unidade, $servico);
+        $su = $em
+            ->getRepository(ServicoUnidade::class)
+            ->get($unidade, $servico);
 
-        if (!$servicoUnidade) {
+        if (!$su) {
             throw new Exception(_('Serviço inválido'));
         }
 
         $servicoUsuario = new ServicoUsuario();
         $servicoUsuario->setUsuario($usuario);
-        $servicoUsuario->setServicoUnidade($servicoUnidade);
+        $servicoUsuario->setServico($servico);
+        $servicoUsuario->setUnidade($unidade);
         $servicoUsuario->setPeso(1);
 
         $em->persist($servicoUsuario);
@@ -314,19 +455,17 @@ class DefaultController extends Controller
      * @ParamConverter("servico", options={"id" = "servicoId"})
      * @Method("DELETE")
      */
-    public function removeServicoUsuarioAction(
-        Request $request,
-        ServicoService $servicoService,
-        Usuario $usuario,
-        Servico $servico
-    ) {
+    public function removeServicoUsuarioAction(Request $request, Usuario $usuario, Servico $servico)
+    {
         $em = $this->getDoctrine()->getManager();
         $unidade = $this->getUser()->getLotacao()->getUnidade();
         $envelope = new Envelope();
         
-        $servicoUnidade = $servicoService->servicoUnidade($unidade, $servico);
+        $su = $em
+            ->getRepository(ServicoUnidade::class)
+            ->get($unidade, $servico);
 
-        if (!$servicoUnidade) {
+        if (!$su) {
             throw new Exception(_('Serviço inválido'));
         }
 
@@ -350,19 +489,17 @@ class DefaultController extends Controller
      * @ParamConverter("servico", options={"id" = "servicoId"})
      * @Method("PUT")
      */
-    public function updateServicoUsuarioAction(
-        Request $request,
-        ServicoService $servicoService,
-        Usuario $usuario,
-        Servico $servico
-    ) {
+    public function updateServicoUsuarioAction(Request $request, Usuario $usuario, Servico $servico)
+    {
         $em = $this->getDoctrine()->getManager();
         $unidade = $this->getUser()->getLotacao()->getUnidade();
         $envelope = new Envelope();
         
-        $servicoUnidade = $servicoService->servicoUnidade($unidade, $servico);
+        $su = $em
+            ->getRepository(ServicoUnidade::class)
+            ->get($unidade, $servico);
 
-        if (!$servicoUnidade) {
+        if (!$su) {
             throw new Exception(_('Serviço inválido'));
         }
         

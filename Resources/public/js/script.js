@@ -13,6 +13,8 @@
             usuarios: usuarios,
             contadores: {},
             servicos: [],
+            servicosSearch: '',
+            servicosUnidade: [],
             servicoUsuario: {},
             servicoUnidade: null
         },
@@ -21,7 +23,7 @@
                 var map = {}, self = this;
                 
                 this.usuarios.forEach(function (user) {
-                    map[user.id] = (self.servicos || []).filter(function (su) {
+                    map[user.id] = (self.servicosUnidade || []).filter(function (su) {
                         var userServices = user.servicos || [], available = true;
                         
                         for (var i = 0; i < userServices.length; i++) {
@@ -39,12 +41,59 @@
             }
         },
         methods: {
+            showServicos: function () {
+                this.loadServicos();
+                $('#dialog-servicos').modal('show');
+            },
+            
             loadServicos: function () {
-                var self = this;
+                var self = this,
+                    ids  = self.servicosUnidade.map(function (su) {
+                        return su.servico.id;
+                    });
+                
+                self.servicos = [];
+                
                 App.ajax({
                     url: App.url('/novosga.settings/servicos'),
+                    data: {
+                        ids: ids.join(',')
+                    },
                     success: function (response) {
-                        self.servicos = response.data.map(function (servico) {
+                        self.servicos = response.data;
+                    }
+                });
+            },
+            
+            addServicos: function () {
+                var self = this,
+                    ids = [];
+                
+                this.servicos.forEach(function (servico) {
+                    if (servico.checked) {
+                        ids.push(servico.id);
+                    }
+                });
+                
+                App.ajax({
+                    url: App.url('/novosga.settings/servicos_unidade'),
+                    type: 'post',
+                    data: {
+                        ids: ids
+                    },
+                    success: function () {
+                        self.loadServicosUnidade();
+                        $('#dialog-servicos').modal('hide');
+                    }
+                });
+            },
+            
+            loadServicosUnidade: function () {
+                var self = this;
+                App.ajax({
+                    url: App.url('/novosga.settings/servicos_unidade'),
+                    success: function (response) {
+                        self.servicosUnidade = response.data.map(function (servico) {
                             servico.local = servico.local.id;
                             return servico;
                         });
@@ -73,9 +122,25 @@
                 delete data.servico;
                 
                 return App.ajax({
-                    url: App.url('/novosga.settings/servicos/') + servicoUnidade.servico.id,
-                    type: 'post',
+                    url: App.url('/novosga.settings/servicos_unidade/') + servicoUnidade.servico.id,
+                    type: 'put',
                     data: data
+                });
+            },
+            
+            removeServicoUnidade: function (servicoUnidade) {
+                var self = this;
+                
+                if (servicoUnidade.ativo) {
+                    return;
+                }
+                
+                App.ajax({
+                    url: App.url('/novosga.settings/servicos_unidade/') + servicoUnidade.servico.id,
+                    type: 'delete',
+                    success: function () {
+                        self.loadServicosUnidade();
+                    }
                 });
             },
             
@@ -83,15 +148,15 @@
                 var self = this;
                 
                 this.updateServico(this.servicoUnidade).then(function () {
-                    self.loadServicos();
-                    $('#dialog-servico').modal('hide');
+                    self.loadServicosUnidade();
+                    $('#dialog-servico-unidade').modal('hide');
                 });
             },
             
             showModal: function (su) {
                 this.servicoUnidade = Object.assign({}, su);
                 
-                $('#dialog-servico').modal('show');
+                $('#dialog-servico-unidade').modal('show');
             },
             
             uppercase: function (su) {
@@ -110,6 +175,9 @@
             
             reiniciarContator: function (servicoId) {
                 var self = this;
+                if (!confirm(desejaReiniciar)) {
+                    return;
+                }
                 App.ajax({
                     url: App.url('/novosga.settings/reiniciar/') + servicoId,
                     complete: function () {
@@ -119,7 +187,16 @@
             },
             
             limparSenhas: function () {
-                alert('TODO');
+                var self = this;
+                if (!confirm(desejaLimparDados)) {
+                    return;
+                }
+                App.ajax({
+                    url: App.url('/novosga.settings/limpar'),
+                    complete: function () {
+                        self.loadContadores();
+                    }
+                });
             },
             
             reiniciarSenhas: function () {
@@ -186,7 +263,7 @@
             },
             
             init: function () {
-                this.loadServicos();
+                this.loadServicosUnidade();
                 this.loadContadores();
             }
         }

@@ -35,7 +35,7 @@
         </ul>
         <div class="tab-content">
             <div id="tab-servicos" class="tab-pane active">
-                <table class="table" id="servicos">
+                <table class="table">
                     <thead class="thead-light">
                         <tr>
                             <th class="ativo">
@@ -54,7 +54,7 @@
                         </tr>
                     </thead>
                     <tbody v-cloak>
-                        <tr v-for="su in servicos">
+                        <tr v-for="su in servicosUnidade">
                             <td class="text-center">
                                 {{ form_widget(inlineForm.ativo, { label: false, attr: { 'v-model': 'su.ativo', 'v-on:change': 'updateServico(su)' } }) }}
                             </td>
@@ -73,9 +73,25 @@
                                 <button type="button" class="btn btn-secondary" v-on:click="showModal(su)">
                                     <i class="fa fa-cog"></i>
                                 </button>
+                                <button type="button" class="btn btn-danger" v-on:click="removeServicoUnidade(su)" v-bind:disabled="su.ativo">
+                                    <i class="fa fa-trash"></i>
+                                </button>
                             </td>
                         </tr>
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td class="text-right">
+                                <button type="button" class="btn btn-primary" v-on:click="showServicos">
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
             <div id="tab-triagem" class="tab-pane">
@@ -119,7 +135,7 @@
                                 <i class="fa fa-warning"></i> 
                                 {% trans %}Zona de perigo{% endtrans %}
                             </div>
-                            <table class="table" id="servicos">
+                            <table class="table">
                                 <thead>
                                     <tr>
                                         <th>
@@ -132,7 +148,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="su in servicos">
+                                    <tr v-for="su in servicosUnidade">
                                         <td class="nome">
                                             {%- verbatim -%}
                                                 {{su.sigla}} - {{su.servico.nome}}
@@ -248,7 +264,37 @@
             </div>
         </div>
 
-        <div id="dialog-servico" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div id="dialog-servicos" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">{{ 'modal.servicos'|trans }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <input type="search" class="form-search form-control" placeholder="{{ 'moda.servicos.search.placeholder'|trans }}" v-model="servicosSearch">
+                        </div>
+                        <div class="checkbox" v-for="servico in servicos" v-if="servico.nome.toUpperCase().indexOf(servicosSearch.toUpperCase()) !== -1 || servico.descricao.toUpperCase().indexOf(servicosSearch.toUpperCase()) !== -1">
+                            <label>
+                                <input type="checkbox" v-model="servico.checked">
+                                {% verbatim %}
+                                    {{ servico.nome }}
+                                {% endverbatim %}
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ 'button.close'|trans }}</button>
+                        <button type="button" class="btn btn-secondary" type="button" v-on:click="addServicos">
+                            {{ 'button.add'|trans }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="dialog-servico-unidade" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     {{ form_start(form, { attr: { 'v-on:submit.prevent': 'updateServicoFromModal' } }) }}
@@ -333,7 +379,9 @@
         var locais = {{ locais|json_encode()|raw }},
             usuarios = {{ usuarios|json_encode()|raw }},
             impressao = {{ unidade.impressao|json_encode()|raw }},
-            desejaReiniciarSenhas = '{% trans %}Deseja realmente reiniciar as senhas?{% endtrans %}';
+            desejaReiniciarSenhas = '{% trans %}Deseja realmente reiniciar as senhas?{% endtrans %}',
+            desejaReiniciar       = '{% trans %}Deseja realmente reiniciar o contador?{% endtrans %}',
+            desejaLimparDados     = '{% trans %}Deseja realmente limpar os dados de atendimento?{% endtrans %}';
     </script>
     <script type="text/javascript" src="{{ asset('bundles/novosgasettings/js/script.js') }}"></script>
 {% endblock %}
