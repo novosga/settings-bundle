@@ -1,8 +1,10 @@
 {% extends "base.html.twig" %}
 
+{% trans_default_domain 'NovosgaSettingsBundle' %}
+
 {% block title -%}
-    {% trans %}Configurações{% endtrans %}
-{%- endblock %}
+    {{ 'title'|trans }}
+{%- endblock %} 
 
 {% block stylesheets %}
     {{ parent() }}

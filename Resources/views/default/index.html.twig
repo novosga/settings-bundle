@@ -1,13 +1,15 @@
 {% extends "@NovosgaSettings/base.html.twig" %}
 
+{% trans_default_domain 'NovosgaSettingsBundle' %}
+
 {% block body %}
     <div class="row">
         <div class="col-sm-12">
             <h1>
                 <i class="fa fa-wrench" aria-hidden="true"></i>
-                {% trans %}Configurações{% endtrans %}
+                {{ 'title'|trans }}
                 <small>
-                    {% trans %}Configurações da unidade{% endtrans %}
+                    {{ 'subtitle'|trans }}
                 </small>
             </h1>
         </div>
