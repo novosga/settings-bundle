@@ -11,14 +11,16 @@
 
 namespace Novosga\SettingsBundle\Form;
 
-use Novosga\Entity\ServicoUnidade;
+use Doctrine\ORM\EntityRepository;
+use Novosga\Entity\Departamento;
 use Novosga\Entity\Local;
+use Novosga\Entity\ServicoUnidade;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -54,9 +56,19 @@ class ServicoUnidadeType extends AbstractType
             ->add('mensagem', TextareaType::class, [
                 'required' => false
             ])
+            ->add('departamento', EntityType::class, [
+                'label' => 'label.department',
+                'class' => Departamento::class,
+                'placeholder' => 'Nenhum',
+                'required' => false,
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('e')
+                                ->orderBy('e.nome', 'ASC');
+                }
+            ])
         ;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -66,7 +78,7 @@ class ServicoUnidadeType extends AbstractType
             'data_class' => ServicoUnidade::class
         ));
     }
-    
+
     public function getBlockPrefix()
     {
         return null;
