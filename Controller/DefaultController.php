@@ -14,7 +14,6 @@ namespace Novosga\SettingsBundle\Controller;
 use Exception;
 use Novosga\Entity\Contador;
 use Novosga\Entity\Local;
-use Novosga\Entity\Lotacao;
 use Novosga\Entity\Servico;
 use Novosga\Entity\ServicoUnidade;
 use Novosga\Entity\ServicoUsuario;
@@ -60,15 +59,13 @@ class DefaultController extends Controller
                     ->findBy([], ['nome' => 'ASC']);
 
         // usuarios da unidade
-        $lotacoes = $em
-                    ->getRepository(Lotacao::class)
-                    ->getLotacoesUnidade($unidade);
+        $usuarios = $em
+                    ->getRepository(Usuario::class)
+                    ->findByUnidade($unidade);
         
         $servicosUnidade = $servicoService->servicosUnidade($unidade);
         
-        $usuarios = array_map(function (Lotacao $lotacao) use ($em, $unidade, $servicosUnidade) {
-            $usuario = $lotacao->getUsuario();
-            
+        $usuariosArray = array_map(function (Usuario $usuario) use ($em, $unidade, $servicosUnidade) {
             $servicosUsuario = $em
                 ->getRepository(ServicoUsuario::class)
                 ->getAll($usuario, $unidade);
@@ -78,8 +75,10 @@ class DefaultController extends Controller
                     
             foreach ($servicosUnidade as $servicoUnidade) {
                 foreach ($servicosUsuario as $servicoUsuario) {
-                    $contains = $servicoUsuario->getServico()->getId() === $servicoUnidade->getServico()->getId();
-                    if ($contains) {
+                    $idA = $servicoUsuario->getServico()->getId();
+                    $idB = $servicoUnidade->getServico()->getId();
+                    
+                    if ($idA === $idB) {
                         $data['servicos'][] = [
                             'id'    => $servicoUnidade->getServico()->getId(),
                             'sigla' => $servicoUnidade->getSigla(),
@@ -91,7 +90,7 @@ class DefaultController extends Controller
             }
             
             return $data;
-        }, $lotacoes);
+        }, $usuarios);
 
         $form          = $this->createForm(ServicoUnidadeType::class);
         $inlineForm    = $this->createForm(ServicoUnidadeType::class);
@@ -100,7 +99,7 @@ class DefaultController extends Controller
         return $this->render('@NovosgaSettings/default/index.html.twig', [
             'unidade' => $unidade,
             'locais' => $locais,
-            'usuarios' => $usuarios,
+            'usuarios' => $usuariosArray,
             'form' => $form->createView(),
             'inlineForm' => $inlineForm->createView(),
             'impressaoForm' => $impressaoForm->createView(),
