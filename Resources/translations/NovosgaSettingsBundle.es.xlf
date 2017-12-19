@@ -1,50 +1,55 @@
-<?xml version="1.0" encoding="utf-8"?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
-  <file source-language="pt-BR" target-language="pt-BR" datatype="plaintext" original="messages.pt_BR.xlf">
+<?xml version="1.0" ?><xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file datatype="plaintext" original="messages.pt_BR.xlf" source-language="pt-BR" target-language="es">
     <body>
       <trans-unit id="0">
         <source>module.name</source>
-        <target>Configurações</target>
+        
       </trans-unit>
       <trans-unit id="1">
         <source>title</source>
-        <target>Configurações</target>
+        
       </trans-unit>
       <trans-unit id="2">
         <source>subtitle</source>
-        <target>Configurações da unidade</target>
+        
       </trans-unit>
       <trans-unit id="3">
         <source>error.invalid_service</source>
-        <target>Serviço inválido</target>
+        <target>Servicio inválido</target>
+        
       </trans-unit>
       <trans-unit id="4">
         <source>error.cannot_remove_disabled_service</source>
-        <target>Não pode remover um serviço ativo</target>
+        
       </trans-unit>
       <trans-unit id="5">
         <source>label.services</source>
-        <target>Serviços</target>
+        <target>Servicios</target>
+        
       </trans-unit>
       <trans-unit id="6">
         <source>label.search</source>
         <target>Buscar</target>
+        
       </trans-unit>
       <trans-unit id="7">
         <source>button.close</source>
         <target>Fechar</target>
+        
       </trans-unit>
       <trans-unit id="8">
         <source>button.add</source>
-        <target>Adicionar</target>
+        <target>Agregar</target>
+        
       </trans-unit>
       <trans-unit id="9">
         <source>label.enabled</source>
-        <target>Ativo</target>
+        <target>Activo</target>
+        
       </trans-unit>
       <trans-unit id="10">
         <source>label.allow_priority</source>
-        <target>Permitir prioridade</target>
+        
       </trans-unit>
     </body>
   </file>

@@ -29,6 +29,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * DefaultController
@@ -39,6 +40,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class DefaultController extends Controller
 {
+    const DOMAIN = 'NovosgaSettingsBundle';
     const DEFAULT_SIGLA = 'A';
 
     /**
@@ -223,7 +225,7 @@ class DefaultController extends Controller
      * @Route("/servicos_unidade/{id}", name="novosga_settings_remove_servico_unidade")
      * @Method("DELETE")
      */
-    public function removeServicoUnidadeAction(Request $request, Servico $servico)
+    public function removeServicoUnidadeAction(Request $request, Servico $servico, TranslatorInterface $translator)
     {
         $unidade  = $this->getUser()->getLotacao()->getUnidade();
         $envelope = new Envelope();
@@ -235,11 +237,11 @@ class DefaultController extends Controller
             ->get($unidade, $servico);
 
         if (!$su) {
-            throw new Exception(_('Serviço inválido'));
+            throw new Exception($translator->trans('error.invalid_service', [], self::DOMAIN));
         }
 
         if ($su->isAtivo()) {
-            throw new Exception(_('Não pode remover um serviço ativo'));
+            throw new Exception($translator->trans('error.cannot_remove_disabled_service', [], self::DOMAIN));
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -346,7 +348,7 @@ class DefaultController extends Controller
      * @Route("/reiniciar/{id}", name="novosga_settings_reiniciar_contador")
      * @ Method("POST")
      */
-    public function reiniciarContadorAction(Request $request, Servico $servico)
+    public function reiniciarContadorAction(Request $request, Servico $servico, TranslatorInterface $translator)
     {
         $envelope = new Envelope();
         
@@ -360,7 +362,7 @@ class DefaultController extends Controller
             ->get($unidade, $servico);
 
         if (!$su) {
-            throw new Exception(_('Serviço inválido'));
+            throw new Exception($translator->trans('error.invalid_service', [], self::DOMAIN));
         }
 
         $contador = $em->getRepository(Contador::class)
@@ -423,8 +425,12 @@ class DefaultController extends Controller
      * @ParamConverter("servico", options={"id" = "servicoId"})
      * @Method("POST")
      */
-    public function addServicoUsuarioAction(Request $request, Usuario $usuario, Servico $servico)
-    {
+    public function addServicoUsuarioAction(
+        Request $request,
+        Usuario $usuario,
+        Servico $servico,
+        TranslatorInterface $translator
+    ) {
         $em = $this->getDoctrine()->getManager();
         $unidade = $this->getUser()->getLotacao()->getUnidade();
         $envelope = new Envelope();
@@ -434,7 +440,7 @@ class DefaultController extends Controller
             ->get($unidade, $servico);
 
         if (!$su) {
-            throw new Exception(_('Serviço inválido'));
+            throw new Exception($translator->trans('error.invalid_service', [], self::DOMAIN));
         }
 
         $servicoUsuario = new ServicoUsuario();
@@ -457,8 +463,12 @@ class DefaultController extends Controller
      * @ParamConverter("servico", options={"id" = "servicoId"})
      * @Method("DELETE")
      */
-    public function removeServicoUsuarioAction(Request $request, Usuario $usuario, Servico $servico)
-    {
+    public function removeServicoUsuarioAction(
+        Request $request,
+        Usuario $usuario,
+        Servico $servico,
+        TranslatorInterface $translator
+    ) {
         $em = $this->getDoctrine()->getManager();
         $unidade = $this->getUser()->getLotacao()->getUnidade();
         $envelope = new Envelope();
@@ -468,7 +478,7 @@ class DefaultController extends Controller
             ->get($unidade, $servico);
 
         if (!$su) {
-            throw new Exception(_('Serviço inválido'));
+            throw new Exception($translator->trans('error.invalid_service', [], self::DOMAIN));
         }
 
         $servicoUsuario = $em
@@ -491,8 +501,12 @@ class DefaultController extends Controller
      * @ParamConverter("servico", options={"id" = "servicoId"})
      * @Method("PUT")
      */
-    public function updateServicoUsuarioAction(Request $request, Usuario $usuario, Servico $servico)
-    {
+    public function updateServicoUsuarioAction(
+        Request $request,
+        Usuario $usuario,
+        Servico $servico,
+        TranslatorInterface $translator
+    ) {
         $em = $this->getDoctrine()->getManager();
         $unidade = $this->getUser()->getLotacao()->getUnidade();
         $envelope = new Envelope();
@@ -502,7 +516,7 @@ class DefaultController extends Controller
             ->get($unidade, $servico);
 
         if (!$su) {
-            throw new Exception(_('Serviço inválido'));
+            throw new Exception($translator->trans('error.invalid_service', [], self::DOMAIN));
         }
         
         $json = json_decode($request->getContent());

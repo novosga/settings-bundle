@@ -277,12 +277,12 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">{{ 'modal.servicos'|trans }}</h5>
+                        <h5 class="modal-title">{{ 'label.services'|trans }}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
-                            <input type="search" class="form-search form-control" placeholder="{{ 'moda.servicos.search.placeholder'|trans }}" v-model="servicosSearch">
+                            <input type="search" class="form-search form-control" placeholder="{{ 'label.search'|trans }}" v-model="servicosSearch">
                         </div>
                         <div class="checkbox" v-for="servico in servicos" v-if="servico.nome.toUpperCase().indexOf(servicosSearch.toUpperCase()) !== -1 || servico.descricao.toUpperCase().indexOf(servicosSearch.toUpperCase()) !== -1">
                             <label>
@@ -295,7 +295,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ 'button.close'|trans }}</button>
-                        <button type="button" class="btn btn-secondary" type="button" v-on:click="addServicos">
+                        <button type="button" class="btn btn-primary" type="button" v-on:click="addServicos">
                             {{ 'button.add'|trans }}
                         </button>
                     </div>
@@ -335,9 +335,9 @@
                                     <div class="col-4">
                                         <span class="col-12">&nbsp;</span>
 
-                                        {{ form_row(form.ativo, { label: 'Ativo'|trans, attr: { 'v-model': 'servicoUnidade.ativo' } }) }}
+                                        {{ form_row(form.ativo, { label: 'label.enabled'|trans, attr: { 'v-model': 'servicoUnidade.ativo' } }) }}
 
-                                        {{ form_row(form.prioridade, { label: 'Permitir prioridade'|trans, attr: { 'v-model': 'servicoUnidade.prioridade' } }) }}
+                                        {{ form_row(form.prioridade, { label: 'label.allow_priority'|trans, attr: { 'v-model': 'servicoUnidade.prioridade' } }) }}
                                     </div>
                                 </div>
                             </fieldset>
