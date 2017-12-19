@@ -22,7 +22,7 @@ class NovosgaSettingsBundle extends BaseModule
 
     public function getDisplayName()
     {
-        return 'Configurações';
+        return 'module.name';
     }
 
     public function getHomeRoute()
