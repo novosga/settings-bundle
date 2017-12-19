@@ -11,6 +11,7 @@
 
 namespace Novosga\SettingsBundle\Controller;
 
+use App\Service\SecurityService;
 use Exception;
 use Novosga\Entity\Contador;
 use Novosga\Entity\Local;
@@ -46,7 +47,7 @@ class DefaultController extends Controller
      *
      * @Route("/", name="novosga_settings_index")
      */
-    public function indexAction(Request $request, ServicoService $servicoService)
+    public function indexAction(Request $request, ServicoService $servicoService, SecurityService $securityService)
     {
         $em = $this->getDoctrine()->getManager();
         
@@ -55,13 +56,13 @@ class DefaultController extends Controller
         
         // locais disponiveis
         $locais = $em
-                    ->getRepository(Local::class)
-                    ->findBy([], ['nome' => 'ASC']);
+            ->getRepository(Local::class)
+            ->findBy([], ['nome' => 'ASC']);
 
         // usuarios da unidade
         $usuarios = $em
-                    ->getRepository(Usuario::class)
-                    ->findByUnidade($unidade);
+            ->getRepository(Usuario::class)
+            ->findByUnidade($unidade);
         
         $servicosUnidade = $servicoService->servicosUnidade($unidade);
         
@@ -97,12 +98,14 @@ class DefaultController extends Controller
         $impressaoForm = $this->createForm(ImpressaoType::class, $unidade->getImpressao());
 
         return $this->render('@NovosgaSettings/default/index.html.twig', [
-            'unidade' => $unidade,
-            'locais' => $locais,
-            'usuarios' => $usuariosArray,
-            'form' => $form->createView(),
-            'inlineForm' => $inlineForm->createView(),
+            'usuario'       => $usuario,
+            'unidade'       => $unidade,
+            'locais'        => $locais,
+            'usuarios'      => $usuariosArray,
+            'form'          => $form->createView(),
+            'inlineForm'    => $inlineForm->createView(),
             'impressaoForm' => $impressaoForm->createView(),
+            'wsSecret'      => $securityService->getWebsocketSecret(),
         ]);
     }
     
@@ -297,7 +300,7 @@ class DefaultController extends Controller
             ->from(Contador::class, 'e')
             ->join('e.servico', 's')
             ->join(ServicoUnidade::class, 'su', 'WITH', 'su.servico = s')
-            ->where('su.unidade = :unidade')
+            ->where('e.unidade = :unidade')
             ->setParameter('unidade', $unidade)
             ->getQuery()
             ->getResult();

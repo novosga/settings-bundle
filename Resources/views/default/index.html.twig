@@ -392,12 +392,15 @@
 {% block javascripts %}
     {{ parent() }}
     <script>
-        var locais = {{ locais|json_encode()|raw }},
-            usuarios = {{ usuarios|json_encode()|raw }},
-            impressao = {{ unidade.impressao|json_encode()|raw }},
+        var locais                = {{ locais|json_encode()|raw }},
+            usuarios              = {{ usuarios|json_encode()|raw }},
+            impressao             = {{ unidade.impressao|json_encode()|raw }},
+            usuario               = {{ usuario|json_encode()|raw }},
+            unidade               = {{ unidade|json_encode()|raw }},
             desejaReiniciarSenhas = '{% trans %}Deseja realmente reiniciar as senhas?{% endtrans %}',
             desejaReiniciar       = '{% trans %}Deseja realmente reiniciar o contador?{% endtrans %}',
-            desejaLimparDados     = '{% trans %}Deseja realmente limpar os dados de atendimento?{% endtrans %}';
+            desejaLimparDados     = '{% trans %}Deseja realmente limpar os dados de atendimento?{% endtrans %}',
+            wsSecret              = '{{ wsSecret }}';
     </script>
     <script type="text/javascript" src="{{ asset('bundles/novosgasettings/js/script.js') }}"></script>
 {% endblock %}
