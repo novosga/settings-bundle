@@ -255,7 +255,7 @@ class DefaultController extends Controller
             ->getManager()
             ->getRepository(Contador::class)
             ->findOneBy([
-                'unidade' => $unidade, 
+                'unidade' => $unidade,
                 'servico' => $servico,
             ]);
 
