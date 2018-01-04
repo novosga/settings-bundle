@@ -188,8 +188,8 @@ class DefaultController extends Controller
         
         // locais disponiveis
         $locais = $em
-                    ->getRepository(Local::class)
-                    ->findBy([], ['nome' => 'ASC']);
+            ->getRepository(Local::class)
+            ->findBy([], ['nome' => 'ASC']);
         
         if (empty($locais)) {
             throw new \Exception('Nenhum local disponível');
@@ -210,8 +210,14 @@ class DefaultController extends Controller
                 $su->setPrioridade(true);
                 $su->setSigla(self::DEFAULT_SIGLA);
                 $su->setAtivo(false);
+                
+                $contador = new Contador();
+                $contador->setNumero(0);
+                $contador->setServico($servico);
+                $contador->setUnidade($unidade);
 
                 $em->persist($su);
+                $em->persist($contador);
                 $em->flush();
             }
         }
@@ -243,9 +249,21 @@ class DefaultController extends Controller
         if ($su->isAtivo()) {
             throw new Exception($translator->trans('error.cannot_remove_disabled_service', [], self::DOMAIN));
         }
+        
+        $contador = $this
+            ->getDoctrine()
+            ->getManager()
+            ->getRepository(Contador::class)
+            ->findOneBy([
+                'unidade' => $unidade, 
+                'servico' => $servico,
+            ]);
 
         $em = $this->getDoctrine()->getManager();
         $em->remove($su);
+        if ($contador) {
+            $em->remove($contador);
+        }
         $em->flush();
         
         return $this->json($envelope);
@@ -324,7 +342,7 @@ class DefaultController extends Controller
     {
         $envelope = new Envelope();
         
-        $em = $this->getDoctrine()->getManager();
+        $em      = $this->getDoctrine()->getManager();
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
 
@@ -365,11 +383,12 @@ class DefaultController extends Controller
             throw new Exception($translator->trans('error.invalid_service', [], self::DOMAIN));
         }
 
-        $contador = $em->getRepository(Contador::class)
-                ->findOneBy([
-                    'unidade' => $unidade->getId(),
-                    'servico' => $servico->getId()
-                ]);
+        $contador = $em
+            ->getRepository(Contador::class)
+            ->findOneBy([
+                'unidade' => $unidade->getId(),
+                'servico' => $servico->getId()
+            ]);
 
         $contador->setNumero($su->getNumeroInicial());
         $em->merge($contador);
@@ -410,9 +429,8 @@ class DefaultController extends Controller
     public function reiniciarAction(Request $request, AtendimentoService $atendimentoService)
     {
         $envelope = new Envelope();
-        
-        $usuario = $this->getUser();
-        $unidade = $usuario->getLotacao()->getUnidade();
+        $usuario  = $this->getUser();
+        $unidade  = $usuario->getLotacao()->getUnidade();
 
         $atendimentoService->acumularAtendimentos($unidade);
 
@@ -431,8 +449,8 @@ class DefaultController extends Controller
         Servico $servico,
         TranslatorInterface $translator
     ) {
-        $em = $this->getDoctrine()->getManager();
-        $unidade = $this->getUser()->getLotacao()->getUnidade();
+        $em       = $this->getDoctrine()->getManager();
+        $unidade  = $this->getUser()->getLotacao()->getUnidade();
         $envelope = new Envelope();
         
         $su = $em
@@ -482,12 +500,12 @@ class DefaultController extends Controller
         }
 
         $servicoUsuario = $em
-                            ->getRepository(ServicoUsuario::class)
-                            ->findOneBy([
-                                'usuario' => $usuario,
-                                'servico' => $servico,
-                                'unidade' => $unidade
-                            ]);
+            ->getRepository(ServicoUsuario::class)
+            ->findOneBy([
+                'usuario' => $usuario,
+                'servico' => $servico,
+                'unidade' => $unidade
+            ]);
 
         $em->remove($servicoUsuario);
         $em->flush();
@@ -522,12 +540,12 @@ class DefaultController extends Controller
         $json = json_decode($request->getContent());
         
         $servicoUsuario = $em
-                        ->getRepository(ServicoUsuario::class)
-                        ->findOneBy([
-                            'usuario' => $usuario,
-                            'servico' => $servico,
-                            'unidade' => $unidade
-                        ]);
+            ->getRepository(ServicoUsuario::class)
+            ->findOneBy([
+                'usuario' => $usuario,
+                'servico' => $servico,
+                'unidade' => $unidade
+            ]);
         
         if (isset($json->peso) && $json->peso > 0) {
             $servicoUsuario->setPeso($json->peso);
