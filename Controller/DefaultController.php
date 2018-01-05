@@ -211,13 +211,27 @@ class DefaultController extends Controller
                 $su->setSigla(self::DEFAULT_SIGLA);
                 $su->setAtivo(false);
                 
-                $contador = new Contador();
-                $contador->setNumero(0);
-                $contador->setServico($servico);
-                $contador->setUnidade($unidade);
+                $contador = $this
+                    ->getDoctrine()
+                    ->getManager()
+                    ->getRepository(Contador::class)
+                    ->findOneBy([
+                        'unidade' => $unidade,
+                        'servico' => $servico,
+                    ]);
+                
+                if (!$contador) {
+                    $contador = new Contador();
+                    $contador->setServico($servico);
+                    $contador->setUnidade($unidade);
+                    $contador->setNumero(0);
+                    $em->persist($contador);
+                } else {
+                    $contador->setNumero(0);
+                    $em->merge($contador);
+                }
 
                 $em->persist($su);
-                $em->persist($contador);
                 $em->flush();
             }
         }
