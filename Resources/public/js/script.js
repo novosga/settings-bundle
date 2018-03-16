@@ -42,8 +42,9 @@
         },
         methods: {
             showServicos: function () {
-                this.loadServicos();
-                $('#dialog-servicos').modal('show');
+                this.loadServicos().then(function () {
+                    $('#dialog-servicos').modal('show');
+                });
             },
 
             loadServicos: function () {
@@ -54,7 +55,7 @@
 
                 self.servicos = [];
 
-                App.ajax({
+                return App.ajax({
                     url: App.url('/novosga.settings/servicos'),
                     data: {
                         ids: ids.join(',')
