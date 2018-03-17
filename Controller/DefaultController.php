@@ -49,7 +49,7 @@ class DefaultController extends Controller
      *
      * @Route("/", name="novosga_settings_index")
      */
-    public function indexAction(Request $request, ServicoService $servicoService, SecurityService $securityService)
+    public function index(Request $request, ServicoService $servicoService, SecurityService $securityService)
     {
         $em = $this->getDoctrine()->getManager();
         
@@ -118,7 +118,7 @@ class DefaultController extends Controller
      * @Route("/servicos", name="novosga_settings_servicos")
      * @Method("GET")
      */
-    public function servicosAction(Request $request, ServicoService $servicoService)
+    public function servicos(Request $request, ServicoService $servicoService)
     {
         $ids = explode(',', $request->get('ids'));
         
@@ -155,7 +155,7 @@ class DefaultController extends Controller
      * @Route("/servicos_unidade", name="novosga_settings_servicos_unidade")
      * @Method("GET")
      */
-    public function servicosUnidadeAction(Request $request, ServicoService $servicoService)
+    public function servicosUnidade(Request $request, ServicoService $servicoService)
     {
         $usuario  = $this->getUser();
         $unidade  = $usuario->getLotacao()->getUnidade();
@@ -174,7 +174,7 @@ class DefaultController extends Controller
      * @Route("/servicos_unidade", name="novosga_settings_add_servico_unidade")
      * @Method("POST")
      */
-    public function addServicoAction(Request $request, ServicoService $servicoService)
+    public function addServico(Request $request, ServicoService $servicoService)
     {
         $json    = $request->getContent();
         $data    = json_decode($json, true);
@@ -245,7 +245,7 @@ class DefaultController extends Controller
      * @Route("/servicos_unidade/{id}", name="novosga_settings_remove_servico_unidade")
      * @Method("DELETE")
      */
-    public function removeServicoUnidadeAction(Request $request, Servico $servico, TranslatorInterface $translator)
+    public function removeServicoUnidade(Request $request, Servico $servico, TranslatorInterface $translator)
     {
         $unidade  = $this->getUser()->getLotacao()->getUnidade();
         $envelope = new Envelope();
@@ -290,7 +290,7 @@ class DefaultController extends Controller
      * @Route("/servicos_unidade/{id}", name="novosga_settings_update_servicos_unidade")
      * @Method("PUT")
      */
-    public function updateServicoAction(Request $request, Servico $servico)
+    public function updateServico(Request $request, Servico $servico)
     {
         $json = $request->getContent();
         $data = json_decode($json, true);
@@ -322,7 +322,7 @@ class DefaultController extends Controller
      * @Route("/contadores", name="novosga_settings_contadores")
      * @Method("GET")
      */
-    public function contadoresAction(Request $request)
+    public function contadores(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
         $usuario = $this->getUser();
@@ -352,7 +352,7 @@ class DefaultController extends Controller
      * @Route("/update_impressao", name="novosga_settings_update_impressao")
      * @Method("POST")
      */
-    public function updateImpressaoAction(Request $request)
+    public function updateImpressao(Request $request)
     {
         $envelope = new Envelope();
         
@@ -380,7 +380,7 @@ class DefaultController extends Controller
      * @Route("/reiniciar/{id}", name="novosga_settings_reiniciar_contador")
      * @ Method("POST")
      */
-    public function reiniciarContadorAction(Request $request, Servico $servico, TranslatorInterface $translator)
+    public function reiniciarContador(Request $request, Servico $servico, TranslatorInterface $translator)
     {
         $envelope = new Envelope();
         
@@ -420,7 +420,7 @@ class DefaultController extends Controller
      * @Route("/limpar", name="novosga_settings_limpar_dados")
      * @ Method("POST")
      */
-    public function limparDadosAction(Request $request, AtendimentoService $atendimentoService)
+    public function limparDados(Request $request, AtendimentoService $atendimentoService)
     {
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
@@ -440,7 +440,7 @@ class DefaultController extends Controller
      * @Route("/acumular_atendimentos", name="novosga_settings_acumular_atendimentos")
      * @Method("POST")
      */
-    public function reiniciarAction(Request $request, AtendimentoService $atendimentoService)
+    public function reiniciar(Request $request, AtendimentoService $atendimentoService)
     {
         $envelope = new Envelope();
         $usuario  = $this->getUser();
@@ -457,7 +457,7 @@ class DefaultController extends Controller
      * @ParamConverter("servico", options={"id" = "servicoId"})
      * @Method("POST")
      */
-    public function addServicoUsuarioAction(
+    public function addServicoUsuario(
         Request $request,
         Usuario $usuario,
         Servico $servico,
@@ -495,7 +495,7 @@ class DefaultController extends Controller
      * @ParamConverter("servico", options={"id" = "servicoId"})
      * @Method("DELETE")
      */
-    public function removeServicoUsuarioAction(
+    public function removeServicoUsuario(
         Request $request,
         Usuario $usuario,
         Servico $servico,
@@ -533,7 +533,7 @@ class DefaultController extends Controller
      * @ParamConverter("servico", options={"id" = "servicoId"})
      * @Method("PUT")
      */
-    public function updateServicoUsuarioAction(
+    public function updateServicoUsuario(
         Request $request,
         Usuario $usuario,
         Servico $servico,
