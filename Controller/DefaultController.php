@@ -120,7 +120,9 @@ class DefaultController extends Controller
      */
     public function servicos(Request $request, ServicoService $servicoService)
     {
-        $ids = explode(',', $request->get('ids'));
+        $ids = array_filter(explode(',', $request->get('ids')), function ($i) {
+            return $i > 0;
+        });
         
         if (empty($ids)) {
             $ids = [0];
