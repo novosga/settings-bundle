@@ -270,6 +270,11 @@
                     data: servicoUsuario,
                     success: function (response) {
                         servicoUsuario.peso = response.data.peso;
+                        
+                        App.Websocket.emit('change user', {
+                            user: usuario.id,
+                            unity: unidade.id
+                        });
                     }
                 });
             },
