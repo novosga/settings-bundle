@@ -106,9 +106,12 @@
             <div id="tab-triagem" class="tab-pane">
                 <div class="row">
                     <div class="col-lg-7">
-                        <fieldset>
-                            <legend>{% trans %}Impressão{% endtrans %}</legend>
-                            {{ form_start(impressaoForm, { attr: { 'v-on:submit.prevent': 'updateImpressao' } }) }}
+                        {{ form_start(impressaoForm, { attr: { 'v-on:submit.prevent': 'updateImpressao' } }) }}
+                        <div class="card">
+                            <div class="card-header">
+                                {% trans %}Impressão{% endtrans %}
+                            </div>
+                            <div class="card-body">
                                 <div class="row">
                                     <div class="col-7">
                                         {{ form_row(impressaoForm.cabecalho, { label: 'Cabeçalho', attr: { 'v-model': 'impressao.cabecalho' } }) }}
@@ -116,8 +119,8 @@
                                         {{ form_row(impressaoForm.rodape, { label: 'Rodapé', attr: { 'v-model': 'impressao.rodape' } }) }}
                                     </div>
                                     <div class="col-5">
-                                        <span class="col-12">&nbsp;</span>
-
+                                        <label>Layout</label>
+                                        
                                         {{ form_row(impressaoForm.exibirData, { label: 'Exibir data', attr: { 'v-model': 'impressao.exibirData' } }) }}
 
                                         {{ form_row(impressaoForm.exibirPrioridade, { label: 'Exibir prioridade', attr: { 'v-model': 'impressao.exibirPrioridade' } }) }}
@@ -134,9 +137,9 @@
                                     <i class="fa fa-save"></i>
                                     {% trans %}Salvar configuração de impressão{% endtrans %}
                                 </button>
-
-                            {{ form_end(impressaoForm) }}
-                        </fieldset>
+                            </div>
+                        </div>
+                        {{ form_end(impressaoForm) }}
                     </div>
                     <div class="col-lg-5">
                         <div class="card">
