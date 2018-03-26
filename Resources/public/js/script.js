@@ -248,6 +248,23 @@
                 });
             },
 
+            updateUsuario: function (usuario) {
+                App.ajax({
+                    url: App.url('/novosga.settings/usuario/') + usuario.id,
+                    type: 'put',
+                    data: {
+                        tipoAtendimento: usuario.tipoAtendimento,
+                        numero: usuario.numero
+                    },
+                    success: function (response) {
+                        App.Websocket.emit('change user', {
+                            user: usuario.id,
+                            unity: unidade.id
+                        });
+                    }
+                });
+            },
+
             removeServicoUsuario: function (usuario, servicoUsuario) {
                 App.ajax({
                     url: App.url('/novosga.settings/servico_usuario/') + usuario.id + '/' + servicoUsuario.id,

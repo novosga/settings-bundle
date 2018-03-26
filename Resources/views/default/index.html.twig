@@ -219,6 +219,30 @@
                                 {% endverbatim %}
                             </div>
                             <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <th>
+                                            {% trans %}Guichê{% endtrans %}
+                                        </th>
+                                        <td>
+                                            <input type="number" class="form-control" v-model="usuario.numero" v-on:change="updateUsuario(usuario)">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            {% trans %}Tipo de atendimento{% endtrans %}
+                                        </th>
+                                        <td>
+                                            <select class="form-control" v-model="usuario.tipoAtendimento" v-on:change="updateUsuario(usuario)">
+                                                {% for k, v in tiposAtendimento %}
+                                                <option value="{{k}}">{{v}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table class="table">
                                 <thead>
                                     <tr>
                                         <th>

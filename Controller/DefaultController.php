@@ -21,6 +21,8 @@ use Novosga\Entity\ServicoUsuario;
 use Novosga\Entity\Usuario;
 use Novosga\Http\Envelope;
 use Novosga\Service\AtendimentoService;
+use Novosga\Service\FilaService;
+use Novosga\Service\UsuarioService;
 use Novosga\Service\ServicoService;
 use Novosga\SettingsBundle\Form\ImpressaoType;
 use Novosga\SettingsBundle\Form\ServicoUnidadeType;
@@ -29,6 +31,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
@@ -49,8 +52,13 @@ class DefaultController extends Controller
      *
      * @Route("/", name="novosga_settings_index")
      */
-    public function index(Request $request, ServicoService $servicoService, SecurityService $securityService)
-    {
+    public function index(
+        Request $request,
+        ServicoService $servicoService,
+        SecurityService $securityService,
+        UsuarioService $usuarioService,
+        TranslatorInterface $translator
+    ) {
         $em = $this->getDoctrine()->getManager();
         
         $usuario = $this->getUser();
@@ -68,7 +76,7 @@ class DefaultController extends Controller
         
         $servicosUnidade = $servicoService->servicosUnidade($unidade);
         
-        $usuariosArray = array_map(function (Usuario $usuario) use ($em, $unidade, $servicosUnidade) {
+        $usuariosArray = array_map(function (Usuario $usuario) use ($em, $unidade, $servicosUnidade, $usuarioService) {
             $servicosUsuario = $em
                 ->getRepository(ServicoUsuario::class)
                 ->getAll($usuario, $unidade);
@@ -92,22 +100,31 @@ class DefaultController extends Controller
                 }
             }
             
+            $tipoAtendimentoMeta     = $usuarioService->meta($usuario, UsuarioService::ATTR_ATENDIMENTO_TIPO);
+            $data['tipoAtendimento'] = $tipoAtendimentoMeta ? $tipoAtendimentoMeta->getValue() : FilaService::TIPO_TODOS;
+            
+            $numeroLocalMeta = $usuarioService->meta($usuario, UsuarioService::ATTR_ATENDIMENTO_LOCAL);
+            $data['numero']  = $numeroLocalMeta ? (int) $numeroLocalMeta->getValue() : null;
+            
             return $data;
         }, $usuarios);
-
+        
+        $tiposAtendimento = $this->getTiposAtendimento($translator);
+        
         $form          = $this->createForm(ServicoUnidadeType::class);
         $inlineForm    = $this->createForm(ServicoUnidadeType::class);
         $impressaoForm = $this->createForm(ImpressaoType::class, $unidade->getImpressao());
 
         return $this->render('@NovosgaSettings/default/index.html.twig', [
-            'usuario'       => $usuario,
-            'unidade'       => $unidade,
-            'locais'        => $locais,
-            'usuarios'      => $usuariosArray,
-            'form'          => $form->createView(),
-            'inlineForm'    => $inlineForm->createView(),
-            'impressaoForm' => $impressaoForm->createView(),
-            'wsSecret'      => $securityService->getWebsocketSecret(),
+            'usuario'          => $usuario,
+            'unidade'          => $unidade,
+            'locais'           => $locais,
+            'usuarios'         => $usuariosArray,
+            'tiposAtendimento' => $tiposAtendimento,
+            'form'             => $form->createView(),
+            'inlineForm'       => $inlineForm->createView(),
+            'impressaoForm'    => $impressaoForm->createView(),
+            'wsSecret'         => $securityService->getWebsocketSecret(),
         ]);
     }
     
@@ -503,8 +520,8 @@ class DefaultController extends Controller
         Servico $servico,
         TranslatorInterface $translator
     ) {
-        $em = $this->getDoctrine()->getManager();
-        $unidade = $this->getUser()->getLotacao()->getUnidade();
+        $em       = $this->getDoctrine()->getManager();
+        $unidade  = $this->getUser()->getLotacao()->getUnidade();
         $envelope = new Envelope();
         
         $su = $em
@@ -541,8 +558,8 @@ class DefaultController extends Controller
         Servico $servico,
         TranslatorInterface $translator
     ) {
-        $em = $this->getDoctrine()->getManager();
-        $unidade = $this->getUser()->getLotacao()->getUnidade();
+        $em       = $this->getDoctrine()->getManager();
+        $unidade  = $this->getUser()->getLotacao()->getUnidade();
         $envelope = new Envelope();
         
         $su = $em
@@ -572,5 +589,42 @@ class DefaultController extends Controller
         $envelope->setData($servicoUsuario);
 
         return $this->json($envelope);
+    }
+    
+    /**
+     * @Route("/usuario/{id}", name="novosga_settings_update_usuario")
+     * @Method("PUT")
+     */
+    public function updateUsuario(
+        Request $request,
+        Usuario $usuario,
+        UsuarioService $usuarioService,
+        TranslatorInterface $translator
+    ) {
+        $json     = json_decode($request->getContent());
+        $em       = $this->getDoctrine()->getManager();
+        $envelope = new Envelope();
+        
+        $tipos = array_keys($this->getTiposAtendimento($translator));
+        
+        if (isset($json->tipoAtendimento) && in_array($json->tipoAtendimento, $tipos)) {
+            $usuarioService->meta($usuario, UsuarioService::ATTR_ATENDIMENTO_TIPO, $json->tipoAtendimento);
+        }
+        
+        if (isset($json->numero) && (($numero = (int) $json->numero)) > 0) {
+            $usuarioService->meta($usuario, UsuarioService::ATTR_ATENDIMENTO_LOCAL, $numero);
+        }
+        
+        return $this->json($envelope);
+    }
+    
+    private function getTiposAtendimento(TranslatorInterface $translator)
+    {
+        return [
+            FilaService::TIPO_TODOS        => $translator->trans('label.todos', [], self::DOMAIN),
+            FilaService::TIPO_NORMAL       => $translator->trans('label.normal', [], self::DOMAIN),
+            FilaService::TIPO_PRIORIDADE   => $translator->trans('label.prio', [], self::DOMAIN),
+            FilaService::TIPO_AGENDAMENTO  => $translator->trans('label.agendamento', [], self::DOMAIN),
+        ];
     }
 }
