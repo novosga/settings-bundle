@@ -76,7 +76,12 @@ class DefaultController extends Controller
         
         $servicosUnidade = $servicoService->servicosUnidade($unidade);
         
-        $usuariosArray = array_map(function (Usuario $usuario) use ($em, $unidade, $servicosUnidade, $usuarioService) {
+        $usuariosArray = array_map(function (Usuario $usuario) use (
+            $em,
+            $unidade,
+            $servicosUnidade,
+            $usuarioService
+        ) {
             $servicosUsuario = $em
                 ->getRepository(ServicoUsuario::class)
                 ->getAll($usuario, $unidade);
@@ -100,11 +105,11 @@ class DefaultController extends Controller
                 }
             }
             
-            $tipoAtendimentoMeta     = $usuarioService->meta($usuario, UsuarioService::ATTR_ATENDIMENTO_TIPO);
-            $data['tipoAtendimento'] = $tipoAtendimentoMeta ? $tipoAtendimentoMeta->getValue() : FilaService::TIPO_TODOS;
+            $tipoMeta                = $usuarioService->meta($usuario, UsuarioService::ATTR_ATENDIMENTO_TIPO);
+            $data['tipoAtendimento'] = $tipoMeta ? $tipoMeta->getValue() : FilaService::TIPO_TODOS;
             
-            $numeroLocalMeta = $usuarioService->meta($usuario, UsuarioService::ATTR_ATENDIMENTO_LOCAL);
-            $data['numero']  = $numeroLocalMeta ? (int) $numeroLocalMeta->getValue() : null;
+            $numeroMeta      = $usuarioService->meta($usuario, UsuarioService::ATTR_ATENDIMENTO_LOCAL);
+            $data['numero']  = $numeroMeta ? (int) $numeroMeta->getValue() : null;
             
             return $data;
         }, $usuarios);
