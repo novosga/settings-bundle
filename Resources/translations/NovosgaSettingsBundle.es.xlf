@@ -51,6 +51,26 @@
         <source>label.allow_priority</source>
         
       </trans-unit>
+      <trans-unit id="11">
+        <source>label.all</source>
+        <target>Todos</target>
+        
+      </trans-unit>
+      <trans-unit id="12">
+        <source>label.normal</source>
+        <target>Normal</target>
+        
+      </trans-unit>
+      <trans-unit id="13">
+        <source>label.priority</source>
+        <target>Prioridade</target>
+        
+      </trans-unit>
+      <trans-unit id="14">
+        <source>label.schedule</source>
+        <target>Agendamento</target>
+        
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -626,10 +626,10 @@ class DefaultController extends Controller
     private function getTiposAtendimento(TranslatorInterface $translator)
     {
         return [
-            FilaService::TIPO_TODOS        => $translator->trans('label.todos', [], self::DOMAIN),
+            FilaService::TIPO_TODOS        => $translator->trans('label.all', [], self::DOMAIN),
             FilaService::TIPO_NORMAL       => $translator->trans('label.normal', [], self::DOMAIN),
-            FilaService::TIPO_PRIORIDADE   => $translator->trans('label.prio', [], self::DOMAIN),
-            FilaService::TIPO_AGENDAMENTO  => $translator->trans('label.agendamento', [], self::DOMAIN),
+            FilaService::TIPO_PRIORIDADE   => $translator->trans('label.priority', [], self::DOMAIN),
+            FilaService::TIPO_AGENDAMENTO  => $translator->trans('label.schedule', [], self::DOMAIN),
         ];
     }
 }
