@@ -26,9 +26,8 @@ use Novosga\Service\UsuarioService;
 use Novosga\Service\ServicoService;
 use Novosga\SettingsBundle\Form\ImpressaoType;
 use Novosga\SettingsBundle\Form\ServicoUnidadeType;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -50,7 +49,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/", name="novosga_settings_index")
+     * @Route("/", name="novosga_settings_index", methods={"GET"})
      */
     public function index(
         Request $request,
@@ -137,8 +136,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/servicos", name="novosga_settings_servicos")
-     * @Method("GET")
+     * @Route("/servicos", name="novosga_settings_servicos", methods={"GET"})
      */
     public function servicos(Request $request, ServicoService $servicoService)
     {
@@ -176,8 +174,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/servicos_unidade", name="novosga_settings_servicos_unidade")
-     * @Method("GET")
+     * @Route("/servicos_unidade", name="novosga_settings_servicos_unidade", methods={"GET"})
      */
     public function servicosUnidade(Request $request, ServicoService $servicoService)
     {
@@ -195,8 +192,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/servicos_unidade", name="novosga_settings_add_servico_unidade")
-     * @Method("POST")
+     * @Route("/servicos_unidade", name="novosga_settings_add_servico_unidade", methods={"POST"})
      */
     public function addServico(Request $request, ServicoService $servicoService)
     {
@@ -266,8 +262,7 @@ class DefaultController extends Controller
     }
     
     /**
-     * @Route("/servicos_unidade/{id}", name="novosga_settings_remove_servico_unidade")
-     * @Method("DELETE")
+     * @Route("/servicos_unidade/{id}", name="novosga_settings_remove_servico_unidade", methods={"DELETE"})
      */
     public function removeServicoUnidade(Request $request, Servico $servico, TranslatorInterface $translator)
     {
@@ -311,8 +306,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/servicos_unidade/{id}", name="novosga_settings_update_servicos_unidade")
-     * @Method("PUT")
+     * @Route("/servicos_unidade/{id}", name="novosga_settings_update_servicos_unidade", methods={"PUT"})
      */
     public function updateServico(Request $request, Servico $servico)
     {
@@ -343,8 +337,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/contadores", name="novosga_settings_contadores")
-     * @Method("GET")
+     * @Route("/contadores", name="novosga_settings_contadores", methods={"GET"})
      */
     public function contadores(Request $request)
     {
@@ -373,8 +366,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/update_impressao", name="novosga_settings_update_impressao")
-     * @Method("POST")
+     * @Route("/update_impressao", name="novosga_settings_update_impressao", methods={"POST"})
      */
     public function updateImpressao(Request $request)
     {
@@ -401,8 +393,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/reiniciar/{id}", name="novosga_settings_reiniciar_contador")
-     * @ Method("POST")
+     * @Route("/reiniciar/{id}", name="novosga_settings_reiniciar_contador", methods={"POST"})
      */
     public function reiniciarContador(Request $request, Servico $servico, TranslatorInterface $translator)
     {
@@ -441,8 +432,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/limpar", name="novosga_settings_limpar_dados")
-     * @ Method("POST")
+     * @Route("/limpar", name="novosga_settings_limpar_dados", methods={"POST"})
      */
     public function limparDados(Request $request, AtendimentoService $atendimentoService)
     {
@@ -461,8 +451,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/acumular_atendimentos", name="novosga_settings_acumular_atendimentos")
-     * @Method("POST")
+     * @Route("/acumular_atendimentos", name="novosga_settings_acumular_atendimentos", methods={"POST"})
      */
     public function reiniciar(Request $request, AtendimentoService $atendimentoService)
     {
@@ -476,10 +465,9 @@ class DefaultController extends Controller
     }
     
     /**
-     * @Route("/servico_usuario/{usuarioId}/{servicoId}", name="novosga_settings_add_servico_usuario")
+     * @Route("/servico_usuario/{usuarioId}/{servicoId}", name="novosga_settings_add_servico_usuario", methods={"POST"})
      * @ParamConverter("usuario", options={"id" = "usuarioId"})
      * @ParamConverter("servico", options={"id" = "servicoId"})
-     * @Method("POST")
      */
     public function addServicoUsuario(
         Request $request,
@@ -514,10 +502,9 @@ class DefaultController extends Controller
     }
     
     /**
-     * @Route("/servico_usuario/{usuarioId}/{servicoId}", name="novosga_settings_remove_servico_usuario")
+     * @Route("/servico_usuario/{usuarioId}/{servicoId}", name="novosga_settings_remove_servico_usuario", methods={"DELETE"})
      * @ParamConverter("usuario", options={"id" = "usuarioId"})
      * @ParamConverter("servico", options={"id" = "servicoId"})
-     * @Method("DELETE")
      */
     public function removeServicoUsuario(
         Request $request,
@@ -552,10 +539,9 @@ class DefaultController extends Controller
     }
     
     /**
-     * @Route("/servico_usuario/{usuarioId}/{servicoId}", name="novosga_settings_update_servico_usuario")
+     * @Route("/servico_usuario/{usuarioId}/{servicoId}", name="novosga_settings_update_servico_usuario", methods={"PUT"})
      * @ParamConverter("usuario", options={"id" = "usuarioId"})
      * @ParamConverter("servico", options={"id" = "servicoId"})
-     * @Method("PUT")
      */
     public function updateServicoUsuario(
         Request $request,
@@ -597,8 +583,7 @@ class DefaultController extends Controller
     }
     
     /**
-     * @Route("/usuario/{id}", name="novosga_settings_update_usuario")
-     * @Method("PUT")
+     * @Route("/usuario/{id}", name="novosga_settings_update_usuario", methods={"PUT"})
      */
     public function updateUsuario(
         Request $request,
