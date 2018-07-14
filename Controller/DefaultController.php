@@ -266,12 +266,11 @@ class DefaultController extends Controller
      */
     public function removeServicoUnidade(Request $request, Servico $servico, TranslatorInterface $translator)
     {
+        $em       = $this->getDoctrine()->getManager();
         $unidade  = $this->getUser()->getLotacao()->getUnidade();
         $envelope = new Envelope();
         
-        $su = $this
-            ->getDoctrine()
-            ->getManager()
+        $su = $em
             ->getRepository(ServicoUnidade::class)
             ->get($unidade, $servico);
 
@@ -283,21 +282,31 @@ class DefaultController extends Controller
             throw new Exception($translator->trans('error.cannot_remove_disabled_service', [], self::DOMAIN));
         }
         
-        $contador = $this
-            ->getDoctrine()
-            ->getManager()
-            ->getRepository(Contador::class)
-            ->findOneBy([
-                'unidade' => $unidade,
-                'servico' => $servico,
-            ]);
+        $em->transactional(function ($em) use ($su, $unidade, $servico) {
+            $em->remove($su);
+        
+            $em
+                ->createQueryBuilder()
+                ->delete(Contador::class, 'e')
+                ->where('e.unidade = :unidade AND e.servico = :servico')
+                ->setParameters([
+                    'unidade' => $unidade,
+                    'servico' => $servico,
+                ])
+                ->getQuery()
+                ->execute();
 
-        $em = $this->getDoctrine()->getManager();
-        $em->remove($su);
-        if ($contador) {
-            $em->remove($contador);
-        }
-        $em->flush();
+            $em
+                ->createQueryBuilder()
+                ->delete(ServicoUsuario::class, 'e')
+                ->where('e.unidade = :unidade AND e.servico = :servico')
+                ->setParameters([
+                    'unidade' => $unidade,
+                    'servico' => $servico,
+                ])
+                ->getQuery()
+                ->execute();
+        });
         
         return $this->json($envelope);
     }
