@@ -511,7 +511,11 @@ class DefaultController extends Controller
     }
     
     /**
-     * @Route("/servico_usuario/{usuarioId}/{servicoId}", name="novosga_settings_remove_servico_usuario", methods={"DELETE"})
+     * @Route(
+     *   "/servico_usuario/{usuarioId}/{servicoId}",
+     *   name="novosga_settings_remove_servico_usuario",
+     *   methods={"DELETE"}
+     * )
      * @ParamConverter("usuario", options={"id" = "usuarioId"})
      * @ParamConverter("servico", options={"id" = "servicoId"})
      */
@@ -548,7 +552,11 @@ class DefaultController extends Controller
     }
     
     /**
-     * @Route("/servico_usuario/{usuarioId}/{servicoId}", name="novosga_settings_update_servico_usuario", methods={"PUT"})
+     * @Route(
+     *   "/servico_usuario/{usuarioId}/{servicoId}",
+     *   name="novosga_settings_update_servico_usuario",
+     *   methods={"PUT"}
+     * )
      * @ParamConverter("usuario", options={"id" = "usuarioId"})
      * @ParamConverter("servico", options={"id" = "servicoId"})
      */
