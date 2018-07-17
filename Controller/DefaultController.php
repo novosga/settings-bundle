@@ -244,10 +244,10 @@ class DefaultController extends Controller
                     $contador = new Contador();
                     $contador->setServico($servico);
                     $contador->setUnidade($unidade);
-                    $contador->setNumero(0);
+                    $contador->setNumero($su->getNumeroInicial());
                     $em->persist($contador);
                 } else {
-                    $contador->setNumero(0);
+                    $contador->setNumero($su->getNumeroInicial());
                     $em->merge($contador);
                 }
 
