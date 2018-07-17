@@ -182,6 +182,7 @@
                 }
                 App.ajax({
                     url: App.url('/novosga.settings/reiniciar/') + servicoId,
+                    type: 'post',
                     complete: function () {
                         self.loadContadores();
                     }
@@ -195,6 +196,7 @@
                 }
                 App.ajax({
                     url: App.url('/novosga.settings/limpar'),
+                    type: 'post',
                     complete: function () {
                         self.loadContadores();
                     }
