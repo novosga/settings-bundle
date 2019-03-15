@@ -23,6 +23,7 @@
       </trans-unit>
       <trans-unit id="4">
         <source>error.cannot_remove_disabled_service</source>
+        <target>No puede eliminar un servicio activo</target>
         
       </trans-unit>
       <trans-unit id="5">
@@ -52,6 +53,7 @@
       </trans-unit>
       <trans-unit id="10">
         <source>label.allow_priority</source>
+        <target>Permitir prioridad</target>
         
       </trans-unit>
       <trans-unit id="11">
@@ -66,12 +68,12 @@
       </trans-unit>
       <trans-unit id="13">
         <source>label.priority</source>
-        <target>Prioridade</target>
+        <target>Prioridad</target>
         
       </trans-unit>
       <trans-unit id="14">
         <source>label.schedule</source>
-        <target>Agendamento</target>
+        <target>Agendar</target>
         
       </trans-unit>
     </body>

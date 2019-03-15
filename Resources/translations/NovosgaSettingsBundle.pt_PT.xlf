@@ -1,39 +1,35 @@
 <?xml version="1.0" ?><xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-  <file datatype="plaintext" original="messages.pt_BR.xlf" source-language="pt-BR" target-language="es">
+  <file datatype="plaintext" original="messages.pt_BR.xlf" source-language="pt-BR" target-language="pt-PT">
     <body>
       <trans-unit id="0">
         <source>module.name</source>
-        <target>Configuración</target>
         
       </trans-unit>
       <trans-unit id="1">
         <source>title</source>
-        <target>Configuración</target>
         
       </trans-unit>
       <trans-unit id="2">
         <source>subtitle</source>
-        <target>Configuración de unidades</target>
         
       </trans-unit>
       <trans-unit id="3">
         <source>error.invalid_service</source>
-        <target>Servicio inválido</target>
+        <target>Serviço inválido</target>
         
       </trans-unit>
       <trans-unit id="4">
         <source>error.cannot_remove_disabled_service</source>
-        <target>No puede quitar un servicio activo</target>
         
       </trans-unit>
       <trans-unit id="5">
         <source>label.services</source>
-        <target>Servicios</target>
+        <target>Serviços</target>
         
       </trans-unit>
       <trans-unit id="6">
         <source>label.search</source>
-        <target>Buscar</target>
+        <target>Pesquisar</target>
         
       </trans-unit>
       <trans-unit id="7">
@@ -43,17 +39,16 @@
       </trans-unit>
       <trans-unit id="8">
         <source>button.add</source>
-        <target>Agregar</target>
+        <target>Adicionar</target>
         
       </trans-unit>
       <trans-unit id="9">
         <source>label.enabled</source>
-        <target>Activo</target>
+        <target>Ativo</target>
         
       </trans-unit>
       <trans-unit id="10">
         <source>label.allow_priority</source>
-        <target>Permitir prioridad</target>
         
       </trans-unit>
       <trans-unit id="11">
@@ -68,12 +63,11 @@
       </trans-unit>
       <trans-unit id="13">
         <source>label.priority</source>
-        <target>Prioridad</target>
+        <target>Prioridade</target>
         
       </trans-unit>
       <trans-unit id="14">
         <source>label.schedule</source>
-        <target>Programación</target>
         
       </trans-unit>
     </body>
