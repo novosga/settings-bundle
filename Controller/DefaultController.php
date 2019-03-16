@@ -32,6 +32,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Translation\TranslatorInterface;
+use function array_map;
+use function array_filter;
 
 /**
  * DefaultController
@@ -43,7 +45,6 @@ use Symfony\Component\Translation\TranslatorInterface;
 class DefaultController extends AbstractController
 {
     const DOMAIN = 'NovosgaSettingsBundle';
-    const DEFAULT_SIGLA = 'A';
 
     /**
      * @param Request $request
@@ -214,11 +215,15 @@ class DefaultController extends AbstractController
         if (empty($locais)) {
             throw new \Exception('Nenhum local disponível');
         }
+
+        $count = count($servicoService->servicosUnidade($unidade));
         
         foreach ($ids as $id) {
             $servico = $em->find(Servico::class, $id);
 
             if ($servico) {
+                $sigla = $this->novaSigla(++$count);
+
                 $su = new ServicoUnidade();
                 $su->setUnidade($unidade);
                 $su->setServico($servico);
@@ -228,7 +233,7 @@ class DefaultController extends AbstractController
                 $su->setNumeroInicial(1);
                 $su->setPeso(1);
                 $su->setPrioridade(true);
-                $su->setSigla(self::DEFAULT_SIGLA);
+                $su->setSigla($sigla);
                 $su->setAtivo(false);
                 
                 $contador = $this
@@ -634,4 +639,23 @@ class DefaultController extends AbstractController
             FilaService::TIPO_AGENDAMENTO  => $translator->trans('label.schedule', [], self::DOMAIN),
         ];
     }
+
+    private function novaSigla($c)
+    {
+        $c = intval($c);
+
+        if ($c <= 0) {
+            return '';
+        }
+    
+        $letter = '';
+                 
+        while ($c != 0) {
+           $p      = ($c - 1) % 26;
+           $c      = intval(($c - $p) / 26);
+           $letter = chr(65 + $p) . $letter;
+        }
+        
+        return $letter;
+    }   
 }
