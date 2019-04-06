@@ -13,7 +13,6 @@ namespace Novosga\SettingsBundle\Form;
 
 use Doctrine\ORM\EntityRepository;
 use Novosga\Entity\Departamento;
-use Novosga\Entity\Local;
 use Novosga\Entity\ServicoUnidade;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -37,9 +36,6 @@ class ServicoUnidadeType extends AbstractType
                 'attr' => [
                     'maxlength' => 3
                 ]
-            ])
-            ->add('local', EntityType::class, [
-                'class' => Local::class
             ])
             ->add('ativo', CheckboxType::class, [
                 'required' => false

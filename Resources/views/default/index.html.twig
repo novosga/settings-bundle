@@ -50,9 +50,6 @@
                                 {% trans %}Serviço{% endtrans %}
                             </th>
                             <th>
-                                {% trans %}Local{% endtrans %}
-                            </th>
-                            <th>
                                 {% trans %}Departamento{% endtrans %}
                             </th>
                             <th></th>
@@ -72,9 +69,6 @@
                                 {% endverbatim %}
                             </td>
                             <td>
-                                {{ form_row(inlineForm.local, { label: false, attr: { 'v-model': 'su.local', 'v-on:change': 'updateServico(su)', 'v-bind:disabled': '!su.ativo' } }) }}
-                            </td>
-                            <td>
                                 {{ form_row(inlineForm.departamento, { label: false, attr: { 'v-model': 'su.departamento', 'v-on:change': 'updateServico(su)', 'v-bind:disabled': '!su.ativo' } }) }}
                             </td>
                             <td class="text-right">
@@ -89,7 +83,6 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -211,8 +204,8 @@
             </div>
             <div id="tab-atendimento" class="tab-pane">
                 <div class="row">
-                    <div class="col-lg-3 col-md-4 col-sm-6" v-for="usuario in usuarios">
-                        <div class="card">
+                    <div class="col-md-4 col-sm-6 col-xs-12" v-for="usuario in usuarios">
+                        <div class="card mb-4">
                             <div class="card-header">
                                 {% verbatim %}
                                     {{ usuario.nome }} ({{ usuario.login }})
@@ -222,7 +215,19 @@
                                 <tbody>
                                     <tr>
                                         <th>
-                                            {% trans %}Guichê{% endtrans %}
+                                            {% trans %}Local{% endtrans %}
+                                        </th>
+                                        <td>
+                                            <select class="form-control" v-model="usuario.local" v-on:change="updateUsuario(usuario)">
+                                                {% for local in locais %}
+                                                    <option value="{{ local.id }}">{{ local.nome }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            {% trans %}Número do local{% endtrans %}
                                         </th>
                                         <td>
                                             <input type="number" class="form-control" v-model="usuario.numero" v-on:change="updateUsuario(usuario)">
@@ -352,8 +357,6 @@
                                             </div>
                                         </div>
 
-                                        {{ form_row(form.local, { attr: { 'v-model': 'servicoUnidade.local' } }) }}
-
                                         {{ form_row(form.departamento, { attr: { 'v-model': 'servicoUnidade.departamento' } }) }}
                                     </div>
                                     <div class="col-4">
@@ -419,8 +422,7 @@
 {% block javascripts %}
     {{ parent() }}
     <script>
-        var locais                = {{ locais|json_encode()|raw }},
-            usuarios              = {{ usuarios|json_encode()|raw }},
+        var usuarios              = {{ usuarios|json_encode()|raw }},
             impressao             = {{ unidade.impressao|json_encode()|raw }},
             usuario               = {{ usuario|json_encode()|raw }},
             unidade               = {{ unidade|json_encode()|raw }},

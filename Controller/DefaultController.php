@@ -107,8 +107,11 @@ class DefaultController extends AbstractController
             
             $tipoMeta                = $usuarioService->meta($usuario, UsuarioService::ATTR_ATENDIMENTO_TIPO);
             $data['tipoAtendimento'] = $tipoMeta ? $tipoMeta->getValue() : FilaService::TIPO_TODOS;
+
+            $localMeta      = $usuarioService->meta($usuario, UsuarioService::ATTR_ATENDIMENTO_LOCAL);
+            $data['local']  = $localMeta ? (int) $localMeta->getValue() : null;
             
-            $numeroMeta      = $usuarioService->meta($usuario, UsuarioService::ATTR_ATENDIMENTO_LOCAL);
+            $numeroMeta      = $usuarioService->meta($usuario, UsuarioService::ATTR_ATENDIMENTO_NUM_LOCAL);
             $data['numero']  = $numeroMeta ? (int) $numeroMeta->getValue() : null;
             
             return $data;
@@ -207,15 +210,6 @@ class DefaultController extends AbstractController
             $ids = [];
         }
         
-        // locais disponiveis
-        $locais = $em
-            ->getRepository(Local::class)
-            ->findBy([], ['nome' => 'ASC']);
-        
-        if (empty($locais)) {
-            throw new \Exception('Nenhum local disponível');
-        }
-
         $count = count($servicoService->servicosUnidade($unidade));
         
         foreach ($ids as $id) {
@@ -225,16 +219,16 @@ class DefaultController extends AbstractController
                 $sigla = $this->novaSigla(++$count);
 
                 $su = new ServicoUnidade();
-                $su->setUnidade($unidade);
-                $su->setServico($servico);
-                $su->setIncremento(1);
-                $su->setLocal($locais[0]);
-                $su->setMensagem('');
-                $su->setNumeroInicial(1);
-                $su->setPeso(1);
-                $su->setPrioridade(true);
-                $su->setSigla($sigla);
-                $su->setAtivo(false);
+                $su
+                    ->setUnidade($unidade)
+                    ->setServico($servico)
+                    ->setIncremento(1)
+                    ->setMensagem('')
+                    ->setNumeroInicial(1)
+                    ->setPeso(1)
+                    ->setPrioridade(true)
+                    ->setSigla($sigla)
+                    ->setAtivo(false);
                 
                 $contador = $this
                     ->getDoctrine()
@@ -623,8 +617,12 @@ class DefaultController extends AbstractController
             $usuarioService->meta($usuario, UsuarioService::ATTR_ATENDIMENTO_TIPO, $json->tipoAtendimento);
         }
         
+        if (isset($json->local) && (($local = (int) $json->local)) > 0) {
+            $usuarioService->meta($usuario, UsuarioService::ATTR_ATENDIMENTO_LOCAL, $local);
+        }
+        
         if (isset($json->numero) && (($numero = (int) $json->numero)) > 0) {
-            $usuarioService->meta($usuario, UsuarioService::ATTR_ATENDIMENTO_LOCAL, $numero);
+            $usuarioService->meta($usuario, UsuarioService::ATTR_ATENDIMENTO_NUM_LOCAL, $numero);
         }
         
         return $this->json($envelope);

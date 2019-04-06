@@ -8,7 +8,6 @@
     var app = new Vue({
         el: '#settings',
         data: {
-            locais: locais,
             impressao: impressao,
             usuarios: usuarios,
             contadores: {},
@@ -95,7 +94,6 @@
                     url: App.url('/novosga.settings/servicos_unidade'),
                     success: function (response) {
                         self.servicosUnidade = response.data.map(function (servico) {
-                            servico.local = servico.local ? servico.local.id : null;
                             servico.departamento = servico.departamento ? servico.departamento.id : null;
                             return servico;
                         });
@@ -256,6 +254,7 @@
                     type: 'put',
                     data: {
                         tipoAtendimento: usuario.tipoAtendimento,
+                        local: usuario.local,
                         numero: usuario.numero
                     },
                     success: function (response) {
