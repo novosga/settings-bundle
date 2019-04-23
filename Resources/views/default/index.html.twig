@@ -344,10 +344,11 @@
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         </div>
                         <div class="modal-body" v-if="servicoUnidade">
+                            {{ form_row(form.ativo, { label: 'label.enabled'|trans, attr: { 'v-model': 'servicoUnidade.ativo' } }) }}
                             <fieldset>
                                 <legend>{% trans %}Triagem{% endtrans %}</legend>
                                 <div class="row">
-                                    <div class="col-4">
+                                    <div class="col-6">
                                         <div class="row">
                                             <div class="col-7">
                                                 {{ form_row(form.sigla, { attr: { 'v-model': 'servicoUnidade.sigla', 'v-on:input': 'uppercase(servicoUnidade)' } }) }}
@@ -357,31 +358,29 @@
                                             </div>
                                         </div>
 
+                                        {{ form_row(form.tipo, { label: 'label.attendance_type'|trans, attr: { 'v-model': 'servicoUnidade.tipo' } }) }}
+
                                         {{ form_row(form.departamento, { attr: { 'v-model': 'servicoUnidade.departamento' } }) }}
                                     </div>
-                                    <div class="col-4">
+                                    <div class="col-6">
                                         {{ form_row(form.mensagem, { attr: { 'v-model': 'servicoUnidade.mensagem', rows: 10 } }) }}
-                                    </div>
-                                    <div class="col-4">
-                                        <span class="col-12">&nbsp;</span>
-
-                                        {{ form_row(form.ativo, { label: 'label.enabled'|trans, attr: { 'v-model': 'servicoUnidade.ativo' } }) }}
-
-                                        {{ form_row(form.prioridade, { label: 'label.allow_priority'|trans, attr: { 'v-model': 'servicoUnidade.prioridade' } }) }}
                                     </div>
                                 </div>
                             </fieldset>
                             <fieldset>
                                 <legend>{% trans %}Contador{% endtrans %}</legend>
                                 <div class="row">
-                                    <div class="col-4">
+                                    <div class="col-3">
                                         {{ form_row(form.numeroInicial, { attr: { 'v-model': 'servicoUnidade.numeroInicial' } }) }}
                                     </div>
-                                    <div class="col-4">
+                                    <div class="col-3">
                                         {{ form_row(form.numeroFinal, { attr: { 'v-model': 'servicoUnidade.numeroFinal' } }) }}
                                     </div>
-                                    <div class="col-4">
+                                    <div class="col-3">
                                         {{ form_row(form.incremento, { attr: { 'v-model': 'servicoUnidade.incremento' } }) }}
+                                    </div>
+                                    <div class="col-3">
+                                        {{ form_row(form.maximo, { attr: { 'v-model': 'servicoUnidade.maximo' } }) }}
                                     </div>
                             </fieldset>
                         </div>

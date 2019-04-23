@@ -17,11 +17,13 @@ use Novosga\Entity\ServicoUnidade;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Novosga\SettingsBundle\Controller\DefaultController;
 
 class ServicoUnidadeType extends AbstractType
 {
@@ -45,21 +47,31 @@ class ServicoUnidadeType extends AbstractType
             ->add('numeroFinal', IntegerType::class, [
                 'required' => false
             ])
-            ->add('incremento', IntegerType::class)
-            ->add('prioridade', CheckboxType::class, [
+            ->add('maximo', IntegerType::class, [
                 'required' => false
+            ])
+            ->add('incremento', IntegerType::class)
+            ->add('tipo', ChoiceType::class, [
+                'required' => true,
+                'choices'  => [
+                    'label.attendance_type_all'      => ServicoUnidade::ATENDIMENTO_TODOS,
+                    'label.attendance_type_normal'   => ServicoUnidade::ATENDIMENTO_NORMAL,
+                    'label.attendance_type_priority' => ServicoUnidade::ATENDIMENTO_PRIORIDADE,
+                ],
+                'choice_translation_domain' => DefaultController::DOMAIN,
             ])
             ->add('mensagem', TextareaType::class, [
                 'required' => false
             ])
             ->add('departamento', EntityType::class, [
-                'label' => 'label.department',
-                'class' => Departamento::class,
-                'placeholder' => 'Nenhum',
-                'required' => false,
+                'label'         => 'label.department',
+                'class'         => Departamento::class,
+                'placeholder'   => 'Nenhum',
+                'required'      => false,
                 'query_builder' => function (EntityRepository $er) {
-                    return $er->createQueryBuilder('e')
-                                ->orderBy('e.nome', 'ASC');
+                    return $er
+                        ->createQueryBuilder('e')
+                        ->orderBy('e.nome', 'ASC');
                 }
             ])
         ;
@@ -71,7 +83,7 @@ class ServicoUnidadeType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => ServicoUnidade::class
+            'data_class' => ServicoUnidade::class,
         ));
     }
 

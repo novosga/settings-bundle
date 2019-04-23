@@ -52,8 +52,23 @@
         
       </trans-unit>
       <trans-unit id="10">
-        <source>label.allow_priority</source>
-        <target>Permitir prioridad</target>
+        <source>label.attendance_type</source>
+        <target>Tipo de atendimento</target>
+        
+      </trans-unit>
+      <trans-unit id="10-1">
+        <source>label.attendance_type_all</source>
+        <target>Todos</target>
+
+      </trans-unit>
+      <trans-unit id="10-2">
+        <source>label.attendance_type_normal</source>
+        <target>Somente normal</target>
+
+      </trans-unit>
+      <trans-unit id="10-3">
+        <source>label.attendance_type_priority</source>
+        <target>Somente prioridad</target>
         
       </trans-unit>
       <trans-unit id="11">

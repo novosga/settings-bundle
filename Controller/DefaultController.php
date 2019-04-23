@@ -226,7 +226,7 @@ class DefaultController extends AbstractController
                     ->setMensagem('')
                     ->setNumeroInicial(1)
                     ->setPeso(1)
-                    ->setPrioridade(true)
+                    ->setTipo(ServicoUnidade::ATENDIMENTO_TODOS)
                     ->setSigla($sigla)
                     ->setAtivo(false);
                 
