@@ -13,17 +13,17 @@ namespace Novosga\SettingsBundle\Controller;
 
 use App\Service\SecurityService;
 use Exception;
-use Novosga\Entity\Contador;
-use Novosga\Entity\Local;
-use Novosga\Entity\Servico;
-use Novosga\Entity\ServicoUnidade;
-use Novosga\Entity\ServicoUsuario;
-use Novosga\Entity\Usuario;
+use Novosga\Entity\ContadorInterface;
+use Novosga\Entity\LocalInterface;
+use Novosga\Entity\ServicoInterface;
+use Novosga\Entity\ServicoUnidadeInterface;
+use Novosga\Entity\ServicoUsuarioInterface;
+use Novosga\Entity\UsuarioInterface;
 use Novosga\Http\Envelope;
-use Novosga\Service\AtendimentoService;
-use Novosga\Service\FilaService;
-use Novosga\Service\UsuarioService;
-use Novosga\Service\ServicoService;
+use App\Service\AtendimentoService;
+use App\Service\FilaService;
+use App\Service\UsuarioService;
+use App\Service\ServicoService;
 use Novosga\SettingsBundle\Form\ImpressaoType;
 use Novosga\SettingsBundle\Form\ServicoUnidadeType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -66,24 +66,24 @@ class DefaultController extends AbstractController
         
         // locais disponiveis
         $locais = $em
-            ->getRepository(Local::class)
+            ->getRepository(LocalInterface::class)
             ->findBy([], ['nome' => 'ASC']);
 
         // usuarios da unidade
         $usuarios = $em
-            ->getRepository(Usuario::class)
+            ->getRepository(UsuarioInterface::class)
             ->findByUnidade($unidade);
         
         $servicosUnidade = $servicoService->servicosUnidade($unidade);
         
-        $usuariosArray = array_map(function (Usuario $usuario) use (
+        $usuariosArray = array_map(function (UsuarioInterface $usuario) use (
             $em,
             $unidade,
             $servicosUnidade,
             $usuarioService
         ) {
             $servicosUsuario = $em
-                ->getRepository(ServicoUsuario::class)
+                ->getRepository(ServicoUsuarioInterface::class)
                 ->getAll($usuario, $unidade);
             
             $data  = $usuario->jsonSerialize();
@@ -263,14 +263,14 @@ class DefaultController extends AbstractController
     /**
      * @Route("/servicos_unidade/{id}", name="novosga_settings_remove_servico_unidade", methods={"DELETE"})
      */
-    public function removeServicoUnidade(Request $request, Servico $servico, TranslatorInterface $translator)
+    public function removeServicoUnidade(Request $request, ServicoInterface $servico, TranslatorInterface $translator)
     {
         $em       = $this->getDoctrine()->getManager();
         $unidade  = $this->getUser()->getLotacao()->getUnidade();
         $envelope = new Envelope();
         
         $su = $em
-            ->getRepository(ServicoUnidade::class)
+            ->getRepository(ServicoUnidadeInterface::class)
             ->get($unidade, $servico);
 
         if (!$su) {
@@ -286,7 +286,7 @@ class DefaultController extends AbstractController
         
             $em
                 ->createQueryBuilder()
-                ->delete(Contador::class, 'e')
+                ->delete(ContadorInterface::class, 'e')
                 ->where('e.unidade = :unidade AND e.servico = :servico')
                 ->setParameters([
                     'unidade' => $unidade,
@@ -297,7 +297,7 @@ class DefaultController extends AbstractController
 
             $em
                 ->createQueryBuilder()
-                ->delete(ServicoUsuario::class, 'e')
+                ->delete(ServicoUsuarioInterface::class, 'e')
                 ->where('e.unidade = :unidade AND e.servico = :servico')
                 ->setParameters([
                     'unidade' => $unidade,
@@ -316,7 +316,7 @@ class DefaultController extends AbstractController
      *
      * @Route("/servicos_unidade/{id}", name="novosga_settings_update_servicos_unidade", methods={"PUT"})
      */
-    public function updateServico(Request $request, Servico $servico)
+    public function updateServico(Request $request, ServicoInterface $servico)
     {
         $json = $request->getContent();
         $data = json_decode($json, true);
@@ -326,7 +326,7 @@ class DefaultController extends AbstractController
         $unidade = $usuario->getLotacao()->getUnidade();
         
         $su = $em
-            ->getRepository(ServicoUnidade::class)
+            ->getRepository(ServicoUnidadeInterface::class)
             ->get($unidade, $servico);
         
         $form = $this->createForm(ServicoUnidadeType::class, $su);
@@ -356,9 +356,9 @@ class DefaultController extends AbstractController
         $contadores = $em
             ->createQueryBuilder()
             ->select('e')
-            ->from(Contador::class, 'e')
+            ->from(ContadorInterface::class, 'e')
             ->join('e.servico', 's')
-            ->join(ServicoUnidade::class, 'su', 'WITH', 'su.servico = s')
+            ->join(ServicoUnidadeInterface::class, 'su', 'WITH', 'su.servico = s')
             ->where('e.unidade = :unidade')
             ->setParameter('unidade', $unidade)
             ->getQuery()
@@ -403,7 +403,7 @@ class DefaultController extends AbstractController
      *
      * @Route("/reiniciar/{id}", name="novosga_settings_reiniciar_contador", methods={"POST"})
      */
-    public function reiniciarContador(Request $request, Servico $servico, TranslatorInterface $translator)
+    public function reiniciarContador(Request $request, ServicoInterface $servico, TranslatorInterface $translator)
     {
         $envelope = new Envelope();
         
@@ -479,8 +479,8 @@ class DefaultController extends AbstractController
      */
     public function addServicoUsuario(
         Request $request,
-        Usuario $usuario,
-        Servico $servico,
+        UsuarioInterface $usuario,
+        ServicoInterface $servico,
         TranslatorInterface $translator
     ) {
         $em       = $this->getDoctrine()->getManager();
@@ -520,8 +520,8 @@ class DefaultController extends AbstractController
      */
     public function removeServicoUsuario(
         Request $request,
-        Usuario $usuario,
-        Servico $servico,
+        UsuarioInterface $usuario,
+        ServicoInterface $servico,
         TranslatorInterface $translator
     ) {
         $em       = $this->getDoctrine()->getManager();
@@ -529,7 +529,7 @@ class DefaultController extends AbstractController
         $envelope = new Envelope();
         
         $su = $em
-            ->getRepository(ServicoUnidade::class)
+            ->getRepository(ServicoUnidadeInterface::class)
             ->get($unidade, $servico);
 
         if (!$su) {
@@ -537,7 +537,7 @@ class DefaultController extends AbstractController
         }
 
         $servicoUsuario = $em
-            ->getRepository(ServicoUsuario::class)
+            ->getRepository(ServicoUsuarioInterface::class)
             ->findOneBy([
                 'usuario' => $usuario,
                 'servico' => $servico,
@@ -561,8 +561,8 @@ class DefaultController extends AbstractController
      */
     public function updateServicoUsuario(
         Request $request,
-        Usuario $usuario,
-        Servico $servico,
+        UsuarioInterface $usuario,
+        ServicoInterface $servico,
         TranslatorInterface $translator
     ) {
         $em       = $this->getDoctrine()->getManager();
@@ -570,7 +570,7 @@ class DefaultController extends AbstractController
         $envelope = new Envelope();
         
         $su = $em
-            ->getRepository(ServicoUnidade::class)
+            ->getRepository(ServicoUnidadeInterface::class)
             ->get($unidade, $servico);
 
         if (!$su) {
@@ -580,7 +580,7 @@ class DefaultController extends AbstractController
         $json = json_decode($request->getContent());
         
         $servicoUsuario = $em
-            ->getRepository(ServicoUsuario::class)
+            ->getRepository(ServicoUsuarioInterface::class)
             ->findOneBy([
                 'usuario' => $usuario,
                 'servico' => $servico,
@@ -603,7 +603,7 @@ class DefaultController extends AbstractController
      */
     public function updateUsuario(
         Request $request,
-        Usuario $usuario,
+        UsuarioInterface $usuario,
         UsuarioService $usuarioService,
         TranslatorInterface $translator
     ) {
