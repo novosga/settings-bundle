@@ -1,80 +1,198 @@
-<?xml version="1.0" ?><xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+<?xml version="1.0"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
   <file datatype="plaintext" original="messages.pt_BR.xlf" source-language="pt-BR" target-language="en-US">
     <body>
       <trans-unit id="0">
         <source>module.name</source>
         <target>Settings</target>
-        
       </trans-unit>
       <trans-unit id="1">
         <source>title</source>
         <target>Settings</target>
-        
       </trans-unit>
       <trans-unit id="2">
         <source>subtitle</source>
         <target>Unity settings</target>
-        
       </trans-unit>
       <trans-unit id="3">
         <source>error.invalid_service</source>
         <target>Invalid service</target>
-        
       </trans-unit>
       <trans-unit id="4">
         <source>error.cannot_remove_disabled_service</source>
         <target>You can't remove an active service</target>
-        
       </trans-unit>
       <trans-unit id="5">
         <source>label.services</source>
         <target>Services</target>
-        
       </trans-unit>
       <trans-unit id="6">
         <source>label.search</source>
         <target>Search</target>
-        
       </trans-unit>
       <trans-unit id="7">
         <source>button.close</source>
         <target>Close</target>
-        
       </trans-unit>
       <trans-unit id="8">
         <source>button.add</source>
         <target>Add</target>
-        
       </trans-unit>
       <trans-unit id="9">
         <source>label.enabled</source>
         <target>Enabled</target>
-        
       </trans-unit>
       <trans-unit id="10">
         <source>label.allow_priority</source>
         <target>Allow priority</target>
-        
       </trans-unit>
       <trans-unit id="11">
         <source>label.all</source>
         <target>All</target>
-        
       </trans-unit>
       <trans-unit id="12">
         <source>label.normal</source>
         <target>Normal</target>
-        
       </trans-unit>
       <trans-unit id="13">
         <source>label.priority</source>
         <target>Priority</target>
-        
       </trans-unit>
       <trans-unit id="14">
         <source>label.schedule</source>
         <target>Scheduling</target>
-        
+      </trans-unit>
+      <trans-unit id="15">
+        <source>label.options</source>
+        <target>Options</target>
+      </trans-unit>
+      <trans-unit id="16">
+        <source>label.attendance</source>
+        <target>Attendance</target>
+      </trans-unit>
+      <trans-unit id="17">
+        <source>label.enabled</source>
+        <target>Enabled</target>
+      </trans-unit>
+      <trans-unit id="18">
+        <source>label.prefix</source>
+        <target>Prefix</target>
+      </trans-unit>
+      <trans-unit id="19">
+        <source>label.service</source>
+        <target>Service</target>
+      </trans-unit>
+      <trans-unit id="20">
+        <source>label.local</source>
+        <target>Local</target>
+      </trans-unit>
+      <trans-unit id="21">
+        <source>label.department</source>
+        <target>Department</target>
+      </trans-unit>
+      <trans-unit id="22">
+        <source>label.print</source>
+        <target>Print</target>
+      </trans-unit>
+      <trans-unit id="23">
+        <source>label.print.header</source>
+        <target>Header</target>
+      </trans-unit>
+      <trans-unit id="24">
+        <source>label.print.footer</source>
+        <target>Footer</target>
+      </trans-unit>
+      <trans-unit id="25">
+        <source>label.print.show.data</source>
+        <target>Print data</target>
+      </trans-unit>
+      <trans-unit id="26">
+        <source>label.print.show.priority</source>
+        <target>Print priority</target>
+      </trans-unit>
+      <trans-unit id="27">
+        <source>label.print.show.unit</source>
+        <target>Print unit</target>
+      </trans-unit>
+      <trans-unit id="28">
+        <source>label.print.show.service</source>
+        <target>Print service</target>
+      </trans-unit>
+      <trans-unit id="29">
+        <source>label.print.show.service.message</source>
+        <target>Print menssage</target>
+      </trans-unit>
+      <trans-unit id="30">
+        <source>label.print.save</source>
+        <target>Save configuration</target>
+      </trans-unit>
+      <trans-unit id="31">
+        <source>label.dangerzone</source>
+        <target>Use with caution</target>
+      </trans-unit>
+      <trans-unit id="32">
+        <source>label.currentnumber</source>
+        <target>Current number</target>
+      </trans-unit>
+      <trans-unit id="33">
+        <source>button.restartcounter</source>
+        <target>Reset counter</target>
+      </trans-unit>
+      <trans-unit id="34">
+        <source>button.restartcounter.help</source>
+        <target>Moves events to the history table and resets the service counters.</target>
+      </trans-unit>
+      <trans-unit id="35">
+        <source>button.resetdata</source>
+        <target>Delete data</target>
+      </trans-unit>
+      <trans-unit id="36">
+        <source>button.resetdata.help</source>
+        <target>Delete historical data from unit</target>
+      </trans-unit>
+      <trans-unit id="37">
+        <source>label.ticketwindow</source>
+        <target>Ticket window</target>
+      </trans-unit>
+      <trans-unit id="38">
+        <source>label.attendancetype</source>
+        <target>Attendance type</target>
+      </trans-unit>
+      <trans-unit id="39">
+        <source>label.weight</source>
+        <target>Weight</target>
+      </trans-unit>
+      <trans-unit id="40">
+        <source>label.noservice</source>
+        <target>No services</target>
+      </trans-unit>
+      <trans-unit id="41">
+        <source>label.cancel</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="42">
+        <source>label.save</source>
+        <target>Save</target>
+      </trans-unit>
+      <trans-unit id="43">
+        <source>label.counter</source>
+        <target>Counter</target>
+      </trans-unit>
+      <trans-unit id="44">
+        <source>label.ticket.reset.success</source>
+        <target>Ticket reset successful</target>
+      </trans-unit>
+      <trans-unit id="45">
+        <source>label.ticket.reset.question</source>
+        <target>Do you really want to reset tickets?</target>
+      </trans-unit>
+      <trans-unit id="46">
+        <source>label.counter.reset.question</source>
+        <target>Do you really want to reset counter?</target>
+      </trans-unit>
+      <trans-unit id="47">
+        <source>label.data.reset.question</source>
+        <target>Do you really want to delete attendance data?</target>
       </trans-unit>
     </body>
   </file>

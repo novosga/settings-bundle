@@ -1,80 +1,198 @@
-<?xml version="1.0" ?><xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+<?xml version="1.0"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
   <file datatype="plaintext" original="messages.pt_BR.xlf" source-language="pt-BR" target-language="es">
     <body>
       <trans-unit id="0">
         <source>module.name</source>
         <target>Configuración</target>
-        
       </trans-unit>
       <trans-unit id="1">
         <source>title</source>
         <target>Configuración</target>
-        
       </trans-unit>
       <trans-unit id="2">
         <source>subtitle</source>
         <target>Configuración de unidades</target>
-        
       </trans-unit>
       <trans-unit id="3">
         <source>error.invalid_service</source>
         <target>Servicio inválido</target>
-        
       </trans-unit>
       <trans-unit id="4">
         <source>error.cannot_remove_disabled_service</source>
         <target>No puede quitar un servicio activo</target>
-        
       </trans-unit>
       <trans-unit id="5">
         <source>label.services</source>
         <target>Servicios</target>
-        
       </trans-unit>
       <trans-unit id="6">
         <source>label.search</source>
         <target>Buscar</target>
-        
       </trans-unit>
       <trans-unit id="7">
         <source>button.close</source>
         <target>Fechar</target>
-        
       </trans-unit>
       <trans-unit id="8">
         <source>button.add</source>
         <target>Agregar</target>
-        
       </trans-unit>
       <trans-unit id="9">
         <source>label.enabled</source>
         <target>Activo</target>
-        
       </trans-unit>
       <trans-unit id="10">
         <source>label.allow_priority</source>
         <target>Permitir prioridad</target>
-        
       </trans-unit>
       <trans-unit id="11">
         <source>label.all</source>
         <target>Todos</target>
-        
       </trans-unit>
       <trans-unit id="12">
         <source>label.normal</source>
         <target>Normal</target>
-        
       </trans-unit>
       <trans-unit id="13">
         <source>label.priority</source>
         <target>Prioridad</target>
-        
       </trans-unit>
       <trans-unit id="14">
         <source>label.schedule</source>
         <target>Programación</target>
-        
+      </trans-unit>
+      <trans-unit id="15">
+        <source>label.options</source>
+        <target>Opciones</target>
+      </trans-unit>
+      <trans-unit id="16">
+        <source>label.attendance</source>
+        <target>Atención</target>
+      </trans-unit>
+      <trans-unit id="17">
+        <source>label.enabled</source>
+        <target>Activo</target>
+      </trans-unit>
+      <trans-unit id="18">
+        <source>label.prefix</source>
+        <target>Prefijo</target>
+      </trans-unit>
+      <trans-unit id="19">
+        <source>label.service</source>
+        <target>Servicio</target>
+      </trans-unit>
+      <trans-unit id="20">
+        <source>label.local</source>
+        <target>Local</target>
+      </trans-unit>
+      <trans-unit id="21">
+        <source>label.department</source>
+        <target>Sector</target>
+      </trans-unit>
+      <trans-unit id="22">
+        <source>label.print</source>
+        <target>Impresión</target>
+      </trans-unit>
+      <trans-unit id="23">
+        <source>label.print.header</source>
+        <target>Encabezado</target>
+      </trans-unit>
+      <trans-unit id="24">
+        <source>label.print.footer</source>
+        <target>Pié</target>
+      </trans-unit>
+      <trans-unit id="25">
+        <source>label.print.show.data</source>
+        <target>Imprimir datos</target>
+      </trans-unit>
+      <trans-unit id="26">
+        <source>label.print.show.priority</source>
+        <target>Imprimir prioridad</target>
+      </trans-unit>
+      <trans-unit id="27">
+        <source>label.print.show.unit</source>
+        <target>Imprimir unidad</target>
+      </trans-unit>
+      <trans-unit id="28">
+        <source>label.print.show.service</source>
+        <target>Imprimir servicio</target>
+      </trans-unit>
+      <trans-unit id="29">
+        <source>label.print.show.service.message</source>
+        <target>Imprimir mensaje</target>
+      </trans-unit>
+      <trans-unit id="30">
+        <source>label.print.save</source>
+        <target>Guardar configuración</target>
+      </trans-unit>
+      <trans-unit id="31">
+        <source>label.dangerzone</source>
+        <target>Usar con Precaución</target>
+      </trans-unit>
+      <trans-unit id="32">
+        <source>label.currentnumber</source>
+        <target>Número actual</target>
+      </trans-unit>
+      <trans-unit id="33">
+        <source>button.restartcounter</source>
+        <target>Restablecer numeración</target>
+      </trans-unit>
+      <trans-unit id="34">
+        <source>button.restartcounter.help</source>
+        <target>Mueve todos los eventos al historial y restablece los contadores de los servicios.</target>
+      </trans-unit>
+      <trans-unit id="35">
+        <source>button.resetdata</source>
+        <target>Eliminar datos</target>
+      </trans-unit>
+      <trans-unit id="36">
+        <source>button.resetdata.help</source>
+        <target>Elimina los datos historicos de la unidad</target>
+      </trans-unit>
+      <trans-unit id="37">
+        <source>label.ticketwindow</source>
+        <target>Ventanilla</target>
+      </trans-unit>
+      <trans-unit id="38">
+        <source>label.attendancetype</source>
+        <target>Tipo de atención</target>
+      </trans-unit>
+      <trans-unit id="39">
+        <source>label.weight</source>
+        <target>Peso</target>
+      </trans-unit>
+      <trans-unit id="40">
+        <source>label.noservice</source>
+        <target>No hay servicios</target>
+      </trans-unit>
+      <trans-unit id="41">
+        <source>label.cancel</source>
+        <target>Cancelar</target>
+      </trans-unit>
+      <trans-unit id="42">
+        <source>label.save</source>
+        <target>Guardar</target>
+      </trans-unit>
+      <trans-unit id="43">
+        <source>label.counter</source>
+        <target>Contador</target>
+      </trans-unit>
+      <trans-unit id="44">
+        <source>label.ticket.reset.success</source>
+        <target>Tickets reiniciados con éxito</target>
+      </trans-unit>
+      <trans-unit id="45">
+        <source>label.ticket.reset.question</source>
+        <target>Esta seguro que desea reiniciar los tickets?</target>
+      </trans-unit>
+      <trans-unit id="46">
+        <source>label.counter.reset.question</source>
+        <target>Esta seguro que desea reiniciar el contador?</target>
+      </trans-unit>
+      <trans-unit id="47">
+        <source>label.data.reset.question</source>
+        <target>Esta seguro que desea eliminar los datos?</target>
       </trans-unit>
     </body>
   </file>
