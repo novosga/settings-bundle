@@ -68,6 +68,6 @@ class ImpressaoType extends AbstractType
     
     public function getBlockPrefix()
     {
-        return null;
+        return '';
     }
 }
