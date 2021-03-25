@@ -332,7 +332,7 @@ class DefaultController extends AbstractController
         $form = $this->createForm(ServicoUnidadeType::class, $su);
         $form->submit($data);
         
-        $em->merge($su);
+        $em->persist($su);
         $em->flush();
         
         $envelope = new Envelope();
@@ -389,7 +389,7 @@ class DefaultController extends AbstractController
         $form = $this->createForm(ImpressaoType::class, $unidade->getImpressao());
         $form->submit($data);
 
-        $em->merge($unidade);
+        $em->persist($unidade);
         $em->flush();
 
         $envelope->setData($unidade);
@@ -428,7 +428,7 @@ class DefaultController extends AbstractController
             ]);
 
         $contador->setNumero($su->getNumeroInicial());
-        $em->merge($contador);
+        $em->persist($contador);
         $em->flush();
 
         $envelope->setData($contador);
@@ -481,6 +481,7 @@ class DefaultController extends AbstractController
         Request $request,
         Usuario $usuario,
         Servico $servico,
+        UsuarioService $usuarioService,
         TranslatorInterface $translator
     ) {
         $em       = $this->getDoctrine()->getManager();
@@ -495,15 +496,7 @@ class DefaultController extends AbstractController
             throw new Exception($translator->trans('error.invalid_service', [], self::DOMAIN));
         }
 
-        $servicoUsuario = new ServicoUsuario();
-        $servicoUsuario->setUsuario($usuario);
-        $servicoUsuario->setServico($servico);
-        $servicoUsuario->setUnidade($unidade);
-        $servicoUsuario->setPeso(1);
-
-        $em->persist($servicoUsuario);
-        $em->flush();
-        
+        $servicoUsuario = $usuarioService->addServicoUsuario($usuario, $servico, $unidade);
         $envelope->setData($servicoUsuario);
         
         return $this->json($envelope);
@@ -522,6 +515,7 @@ class DefaultController extends AbstractController
         Request $request,
         Usuario $usuario,
         Servico $servico,
+        UsuarioService $usuarioService,
         TranslatorInterface $translator
     ) {
         $em       = $this->getDoctrine()->getManager();
@@ -536,16 +530,7 @@ class DefaultController extends AbstractController
             throw new Exception($translator->trans('error.invalid_service', [], self::DOMAIN));
         }
 
-        $servicoUsuario = $em
-            ->getRepository(ServicoUsuario::class)
-            ->findOneBy([
-                'usuario' => $usuario,
-                'servico' => $servico,
-                'unidade' => $unidade
-            ]);
-
-        $em->remove($servicoUsuario);
-        $em->flush();
+        $usuarioService->removeServicoUsuario($usuario, $servico, $unidade);
         
         return $this->json($envelope);
     }
@@ -563,6 +548,7 @@ class DefaultController extends AbstractController
         Request $request,
         Usuario $usuario,
         Servico $servico,
+        UsuarioService $usuarioService,
         TranslatorInterface $translator
     ) {
         $em       = $this->getDoctrine()->getManager();
@@ -579,21 +565,10 @@ class DefaultController extends AbstractController
         
         $json = json_decode($request->getContent());
         
-        $servicoUsuario = $em
-            ->getRepository(ServicoUsuario::class)
-            ->findOneBy([
-                'usuario' => $usuario,
-                'servico' => $servico,
-                'unidade' => $unidade
-            ]);
-        
         if (isset($json->peso) && $json->peso > 0) {
-            $servicoUsuario->setPeso($json->peso);
-            $em->merge($servicoUsuario);
-            $em->flush();
+            $servicoUsuario = $usuarioService->updateServicoUsuario($usuario, $servico, $unidade, (int) $json->peso);
+            $envelope->setData($servicoUsuario);
         }
-        
-        $envelope->setData($servicoUsuario);
 
         return $this->json($envelope);
     }
@@ -604,27 +579,17 @@ class DefaultController extends AbstractController
     public function updateUsuario(
         Request $request,
         Usuario $usuario,
-        UsuarioService $usuarioService,
-        TranslatorInterface $translator
+        UsuarioService $usuarioService
     ) {
-        $json     = json_decode($request->getContent());
-        $em       = $this->getDoctrine()->getManager();
+        $json = json_decode($request->getContent());
         $envelope = new Envelope();
         
-        $tipos = array_keys($this->getTiposAtendimento($translator));
-        
-        if (isset($json->tipoAtendimento) && in_array($json->tipoAtendimento, $tipos)) {
-            $usuarioService->meta($usuario, UsuarioService::ATTR_ATENDIMENTO_TIPO, $json->tipoAtendimento);
-        }
-        
-        if (isset($json->local) && (($local = (int) $json->local)) > 0) {
-            $usuarioService->meta($usuario, UsuarioService::ATTR_ATENDIMENTO_LOCAL, $local);
-        }
-        
-        if (isset($json->numero) && (($numero = (int) $json->numero)) > 0) {
-            $usuarioService->meta($usuario, UsuarioService::ATTR_ATENDIMENTO_NUM_LOCAL, $numero);
-        }
-        
+        $tipoAtendimento = isset($json->tipoAtendimento) ? $json->tipoAtendimento : null;
+        $local = isset($json->local) ? (int) $json->local : null;
+        $numero = isset($json->numero) ? (int) $json->numero : null;
+
+        $usuarioService->updateUsuario($usuario, $tipoAtendimento, $local, $numero);
+
         return $this->json($envelope);
     }
     

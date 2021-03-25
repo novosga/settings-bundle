@@ -5,9 +5,10 @@
 (function () {
     'use strict'
 
-    var app = new Vue({
+    new Vue({
         el: '#settings',
         data: {
+            unidade: (unidade || {}),
             impressao: impressao,
             usuarios: usuarios,
             contadores: {},
@@ -239,11 +240,6 @@
                             nome: response.data.servico.nome,
                             peso: response.data.peso
                         });
-                        
-                        App.Websocket.emit('change user', {
-                            user: usuario.id,
-                            unity: unidade.id
-                        });
                     }
                 });
             },
@@ -256,12 +252,6 @@
                         tipoAtendimento: usuario.tipoAtendimento,
                         local: usuario.local,
                         numero: usuario.numero
-                    },
-                    success: function (response) {
-                        App.Websocket.emit('change user', {
-                            user: usuario.id,
-                            unity: unidade.id
-                        });
                     }
                 });
             },
@@ -272,11 +262,6 @@
                     type: 'delete',
                     success: function () {
                         usuario.servicos.splice(usuario.servicos.indexOf(servicoUsuario), 1);
-                        
-                        App.Websocket.emit('change user', {
-                            user: usuario.id,
-                            unity: unidade.id
-                        });
                     }
                 });
             },
@@ -288,54 +273,27 @@
                     data: servicoUsuario,
                     success: function (response) {
                         servicoUsuario.peso = response.data.peso;
-                        
-                        App.Websocket.emit('change user', {
-                            user: usuario.id,
-                            unity: unidade.id
-                        });
                     }
                 });
             },
+        },
+        mounted() {
+            App.SSE.connect([
+                `/unidades/${this.unidade.id}/fila`,
+            ]);
 
-            init: function () {
-                var self = this;
-                
-                App.Websocket.connect();
-
-                App.Websocket.on('connect', function () {
-                    App.Websocket.emit('register user', {
-                        secret: wsSecret,
-                        user: usuario.id,
-                        unity: unidade.id
-                    });
-                });
-
-                // ajax polling fallback
-                App.Websocket.on('reconnect_failed', function () {
-                    App.Websocket.connect();
-                    console.log('ws timeout, ajax polling fallback');
-                    self.loadContadores();
-                });
-
-                App.Websocket.on('error', function () {
-                    console.log('error');
-                });
-
-                App.Websocket.on('register ok', function () {
-                    console.log('registered!');
-                });
-
-                App.Websocket.on('update queue', function () {
-                    console.log('do update!');
-                    self.loadContadores();
-                });
-                
-                this.loadServicosUnidade();
+            App.SSE.onmessage = (e, data) => {
                 this.loadContadores();
-            }
+            };
+
+            // ajax polling fallback
+            App.SSE.ondisconnect = () => {
+                this.loadContadores();
+            };
+            
+            this.loadServicosUnidade();
+            this.loadContadores();
         }
     });
-
-    app.init();
 
 })();
