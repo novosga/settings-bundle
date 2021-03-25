@@ -11,7 +11,6 @@
 
 namespace Novosga\SettingsBundle\Controller;
 
-use App\Service\SecurityService;
 use Exception;
 use Novosga\Entity\Contador;
 use Novosga\Entity\Local;
@@ -55,7 +54,6 @@ class DefaultController extends AbstractController
     public function index(
         Request $request,
         ServicoService $servicoService,
-        SecurityService $securityService,
         UsuarioService $usuarioService,
         TranslatorInterface $translator
     ) {
@@ -132,7 +130,6 @@ class DefaultController extends AbstractController
             'form'             => $form->createView(),
             'inlineForm'       => $inlineForm->createView(),
             'impressaoForm'    => $impressaoForm->createView(),
-            'wsSecret'         => $securityService->getWebsocketSecret(),
         ]);
     }
     
