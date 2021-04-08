@@ -54,8 +54,8 @@ class ServicoUnidadeType extends AbstractType
             ->add('tipo', ChoiceType::class, [
                 'required' => true,
                 'choices'  => [
-                    'label.attendance_type_all'      => ServicoUnidade::ATENDIMENTO_TODOS,
-                    'label.attendance_type_normal'   => ServicoUnidade::ATENDIMENTO_NORMAL,
+                    'label.attendance_type_all' => ServicoUnidade::ATENDIMENTO_TODOS,
+                    'label.attendance_type_normal' => ServicoUnidade::ATENDIMENTO_NORMAL,
                     'label.attendance_type_priority' => ServicoUnidade::ATENDIMENTO_PRIORIDADE,
                 ],
                 'choice_translation_domain' => DefaultController::DOMAIN,
@@ -82,9 +82,9 @@ class ServicoUnidadeType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(array(
+        $resolver->setDefaults([
             'data_class' => ServicoUnidade::class,
-        ));
+        ]);
     }
 
     public function getBlockPrefix()
