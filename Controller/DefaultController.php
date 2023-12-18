@@ -68,10 +68,13 @@ class DefaultController extends AbstractController
             ->findBy([], ['nome' => 'ASC']);
 
         // usuarios da unidade
-        $usuarios = $em
+        $todosUsuarios = $em
             ->getRepository(Usuario::class)
             ->findByUnidade($unidade);
-        
+        $usuarios = array_values(array_filter($todosUsuarios, function (Usuario $usuario) {
+            return $usuario->isAtivo();
+        }));
+
         $servicosUnidade = $servicoService->servicosUnidade($unidade);
         
         $usuariosArray = array_map(function (Usuario $usuario) use (
