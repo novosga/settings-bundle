@@ -20,17 +20,17 @@
     <div id="settings">
         <ul class="nav nav-tabs">
             <li class="nav-item">
-                <a href="#tab-servicos" data-toggle="tab" class="nav-link active">
+                <a href="#tab-servicos" data-bs-toggle="tab" class="nav-link active">
                     {% trans %}Serviços{% endtrans %}
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#tab-triagem" data-toggle="tab" class="nav-link">
+                <a href="#tab-triagem" data-bs-toggle="tab" class="nav-link">
                     {% trans %}Triagem{% endtrans %}
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#tab-atendimento" data-toggle="tab" class="nav-link">
+                <a href="#tab-atendimento" data-bs-toggle="tab" class="nav-link">
                     {% trans %}Atendimento{% endtrans %}
                 </a>
             </li>
@@ -310,10 +310,10 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">{{ 'label.services'|trans }}</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <input type="search" class="form-search form-control" placeholder="{{ 'label.search'|trans }}" v-model="servicosSearch">
                         </div>
                         <div class="checkbox" v-for="servico in servicos" v-if="servico.nome.toUpperCase().indexOf(servicosSearch.toUpperCase()) !== -1 || servico.descricao.toUpperCase().indexOf(servicosSearch.toUpperCase()) !== -1">
@@ -326,7 +326,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ 'button.close'|trans }}</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'button.close'|trans }}</button>
                         <button type="button" class="btn btn-primary" type="button" v-on:click="addServicos">
                             {{ 'button.add'|trans }}
                         </button>
@@ -341,7 +341,7 @@
                     {{ form_start(form, { attr: { 'v-on:submit.prevent': 'updateServicoFromModal' } }) }}
                         <div class="modal-header">
                             <h5 class="modal-title">{% trans %}Serviço{% endtrans %}</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body" v-if="servicoUnidade">
                             {{ form_row(form.ativo, { label: 'label.enabled'|trans, attr: { 'v-model': 'servicoUnidade.ativo' } }) }}
@@ -385,7 +385,7 @@
                             </fieldset>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                                 {% trans %}Cancelar{% endtrans %}
                             </button>
                             <button type="submit" class="btn btn-primary">
@@ -404,13 +404,13 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">{% trans %}Configuração{% endtrans %}</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <p>{% trans %}Senhas reiniciadas com sucesso{% endtrans %}</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans %}Fechar{% endtrans %}</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans %}Fechar{% endtrans %}</button>
                     </div>
                 </div>
             </div>

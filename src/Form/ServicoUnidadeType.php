@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Novo SGA project.
  *
@@ -12,8 +14,8 @@
 namespace Novosga\SettingsBundle\Form;
 
 use Doctrine\ORM\EntityRepository;
-use Novosga\Entity\Departamento;
-use Novosga\Entity\ServicoUnidade;
+use App\Entity\Departamento;
+use App\Entity\ServicoUnidade;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -23,7 +25,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Novosga\SettingsBundle\Controller\DefaultController;
+use Novosga\SettingsBundle\NovosgaSettingsBundle;
 
 class ServicoUnidadeType extends AbstractType
 {
@@ -58,7 +60,7 @@ class ServicoUnidadeType extends AbstractType
                     'label.attendance_type_normal' => ServicoUnidade::ATENDIMENTO_NORMAL,
                     'label.attendance_type_priority' => ServicoUnidade::ATENDIMENTO_PRIORIDADE,
                 ],
-                'choice_translation_domain' => DefaultController::DOMAIN,
+                'choice_translation_domain' => NovosgaSettingsBundle::getDomain(),
             ])
             ->add('mensagem', TextareaType::class, [
                 'required' => false
@@ -84,6 +86,7 @@ class ServicoUnidadeType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => ServicoUnidade::class,
+            'csrf_protection' => false,
         ]);
     }
 

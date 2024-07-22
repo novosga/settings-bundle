@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Novo SGA project.
  *
@@ -11,7 +13,7 @@
 
 namespace Novosga\SettingsBundle\Form;
 
-use Novosga\Entity\ConfiguracaoImpressao;
+use Novosga\Entity\ConfiguracaoImpressaoInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -54,18 +56,17 @@ class ImpressaoType extends AbstractType
             ])
         ;
     }
-    
-    /**
-     * {@inheritdoc}
-     */
+
+    /** {@inheritdoc} */
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver
             ->setDefaults([
-                'data_class' => ConfiguracaoImpressao::class
+                'data_class' => ConfiguracaoImpressaoInterface::class,
+                'csrf_protection' => false,
             ]);
     }
-    
+
     public function getBlockPrefix()
     {
         return '';
