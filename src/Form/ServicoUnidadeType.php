@@ -13,10 +13,10 @@ declare(strict_types=1);
 
 namespace Novosga\SettingsBundle\Form;
 
-use Doctrine\ORM\EntityRepository;
-use App\Entity\Departamento;
-use App\Entity\ServicoUnidade;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Novosga\Entity\DepartamentoInterface;
+use Novosga\Entity\ServicoUnidadeInterface;
+use Novosga\Repository\DepartamentoRepositoryInterface;
+use Novosga\SettingsBundle\NovosgaSettingsBundle;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -25,14 +25,15 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Novosga\SettingsBundle\NovosgaSettingsBundle;
 
 class ServicoUnidadeType extends AbstractType
 {
-    /**
-     * @param FormBuilderInterface $builder
-     * @param array $options
-     */
+    public function __construct(
+        private readonly DepartamentoRepositoryInterface $departamentoRepository,
+    ) {
+    }
+
+    /** {@inheritdoc} */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -56,36 +57,31 @@ class ServicoUnidadeType extends AbstractType
             ->add('tipo', ChoiceType::class, [
                 'required' => true,
                 'choices'  => [
-                    'label.attendance_type_all' => ServicoUnidade::ATENDIMENTO_TODOS,
-                    'label.attendance_type_normal' => ServicoUnidade::ATENDIMENTO_NORMAL,
-                    'label.attendance_type_priority' => ServicoUnidade::ATENDIMENTO_PRIORIDADE,
+                    'label.attendance_type_all' => ServicoUnidadeInterface::ATENDIMENTO_TODOS,
+                    'label.attendance_type_normal' => ServicoUnidadeInterface::ATENDIMENTO_NORMAL,
+                    'label.attendance_type_priority' => ServicoUnidadeInterface::ATENDIMENTO_PRIORIDADE,
                 ],
                 'choice_translation_domain' => NovosgaSettingsBundle::getDomain(),
             ])
             ->add('mensagem', TextareaType::class, [
                 'required' => false
             ])
-            ->add('departamento', EntityType::class, [
-                'label'         => 'label.department',
-                'class'         => Departamento::class,
-                'placeholder'   => 'Nenhum',
-                'required'      => false,
-                'query_builder' => function (EntityRepository $er) {
-                    return $er
-                        ->createQueryBuilder('e')
-                        ->orderBy('e.nome', 'ASC');
-                }
+            ->add('departamento', ChoiceType::class, [
+                'label' => 'label.department',
+                'placeholder' => 'Nenhum',
+                'required' => false,
+                'choice_value' => fn (?DepartamentoInterface $value) => $value?->getId(),
+                'choice_label' => fn (?DepartamentoInterface $value) => $value?->getNome(),
+                'choices' => $this->departamentoRepository->findAll(),
             ])
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    /** {@inheritdoc} */
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => ServicoUnidade::class,
+            'data_class' => ServicoUnidadeInterface::class,
             'csrf_protection' => false,
         ]);
     }

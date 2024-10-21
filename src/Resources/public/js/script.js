@@ -16,7 +16,9 @@
             servicosSearch: '',
             servicosUnidade: [],
             servicoUsuario: {},
-            servicoUnidade: null
+            servicoUnidade: null,
+            servicosModal: null,
+            servicoUnidadeModal: null,
         },
         computed: {
             availableServices: function () {
@@ -41,36 +43,29 @@
             }
         },
         methods: {
-            showServicos: function () {
-                this.loadServicos().then(function () {
-                    $('#dialog-servicos').modal('show');
+            showServicos() {
+                this.loadServicos().then(() => {
+                    this.servicosModal.show();
                 });
             },
 
-            loadServicos: function () {
-                var self = this,
-                    ids  = self.servicosUnidade.map(function (su) {
-                        return su.servico.id;
-                    });
-
-                self.servicos = [];
-
+            loadServicos() {
+                const ids = this.servicosUnidade.map((su) => su.servico.id);
+                this.servicos = [];
                 return App.ajax({
                     url: App.url('/novosga.settings/servicos'),
                     data: {
                         ids: ids.join(',')
                     },
-                    success: function (response) {
-                        self.servicos = response.data;
+                    success: (response) => {
+                        this.servicos = response.data;
                     }
                 });
             },
 
-            addServicos: function () {
-                var self = this,
-                    ids = [];
-
-                this.servicos.forEach(function (servico) {
+            addServicos() {
+                let ids = [];
+                this.servicos.forEach((servico) => {
                     if (servico.checked) {
                         ids.push(servico.id);
                     }
@@ -82,19 +77,18 @@
                     data: {
                         ids: ids
                     },
-                    success: function () {
-                        self.loadServicosUnidade();
-                        $('#dialog-servicos').modal('hide');
+                    success: () => {
+                        this.loadServicosUnidade();
+                        this.servicosModal.hide();
                     }
                 });
             },
 
-            loadServicosUnidade: function () {
-                var self = this;
+            loadServicosUnidade() {
                 App.ajax({
                     url: App.url('/novosga.settings/servicos_unidade'),
-                    success: function (response) {
-                        self.servicosUnidade = response.data.map(function (servico) {
+                    success: (response) => {
+                        this.servicosUnidade = response.data.map((servico) => {
                             servico.departamento = servico.departamento ? servico.departamento.id : null;
                             return servico;
                         });
@@ -102,23 +96,21 @@
                 });
             },
 
-            loadContadores: function () {
-                var self = this;
+            loadContadores() {
                 App.ajax({
                     url: App.url('/novosga.settings/contadores'),
-                    success: function (response) {
-                        self.contadores = {};
-                        for (var i = 0; i < response.data.length; i++) {
-                            var contador = response.data[i];
-                            self.contadores[contador.servico.id] = contador.numero;
+                    success: (response) => {
+                        this.contadores = {};
+                        for (let i = 0; i < response.data.length; i++) {
+                            const contador = response.data[i];
+                            this.contadores[contador.servico.id] = contador.numero;
                         }
                     }
                 });
             },
 
-            updateServico: function (servicoUnidade) {
-                var data = Object.assign({}, servicoUnidade);
-
+            updateServico(servicoUnidade) {
+                const data = Object.assign({}, servicoUnidade);
                 data.sigla = data.sigla.toUpperCase();
                 delete data.servico;
 
@@ -129,9 +121,7 @@
                 });
             },
 
-            removeServicoUnidade: function (servicoUnidade) {
-                var self = this;
-
+            removeServicoUnidade(servicoUnidade) {
                 if (servicoUnidade.ativo) {
                     return;
                 }
@@ -139,25 +129,22 @@
                 App.ajax({
                     url: App.url('/novosga.settings/servicos_unidade/') + servicoUnidade.servico.id,
                     type: 'delete',
-                    success: function () {
+                    success: () => {
                         self.loadServicosUnidade();
                     }
                 });
             },
 
-            updateServicoFromModal: function () {
-                var self = this;
-
-                this.updateServico(this.servicoUnidade).then(function () {
-                    self.loadServicosUnidade();
-                    $('#dialog-servico-unidade').modal('hide');
+            updateServicoFromModal() {
+                this.updateServico(this.servicoUnidade).then(() => {
+                    this.loadServicosUnidade();
+                    this.servicoUnidadeModal.hide();
                 });
             },
 
-            showModal: function (su) {
+            showModal(su) {
                 this.servicoUnidade = Object.assign({}, su);
-
-                $('#dialog-servico-unidade').modal('show');
+                this.servicoUnidadeModal.show();
             },
 
             uppercase: function (su) {
@@ -278,6 +265,9 @@
             },
         },
         mounted() {
+            this.servicosModal = new bootstrap.Modal(this.$refs.servicosModal);
+            this.servicoUnidadeModal = new bootstrap.Modal(this.$refs.servicoUnidadeModal);
+
             App.SSE.connect([
                 `/unidades/${this.unidade.id}/fila`,
             ]);

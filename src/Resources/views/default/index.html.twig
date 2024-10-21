@@ -71,7 +71,7 @@
                             <td>
                                 {{ form_row(inlineForm.departamento, { label: false, attr: { 'v-model': 'su.departamento', 'v-on:change': 'updateServico(su)', 'v-bind:disabled': '!su.ativo' } }) }}
                             </td>
-                            <td class="text-right">
+                            <td class="text-end">
                                 <button type="button" class="btn btn-secondary" v-on:click="showModal(su)">
                                     <i class="fa fa-cog"></i>
                                 </button>
@@ -87,7 +87,7 @@
                             <td></td>
                             <td></td>
                             <td></td>
-                            <td class="text-right">
+                            <td class="text-end">
                                 <button type="button" class="btn btn-primary" v-on:click="showServicos">
                                     <i class="fa fa-plus"></i>
                                 </button>
@@ -163,7 +163,7 @@
                                             <input type="text" class="form-control" disabled
                                                    v-bind:value="contadores[su.servico.id]">
                                         </td>
-                                        <td class="text-right">
+                                        <td class="text-end">
                                             <button type="button" class="btn btn-secondary" title="{% trans %}Reiniciar contagem do serviço{% endtrans %}"
                                                     v-on:click="reiniciarContator(su.servico.id)">
                                                 <i class="fa fa-refresh"></i>
@@ -269,7 +269,7 @@
                                         <td style="width: 100px">
                                             <input type="number" class="form-control" v-model="servicoUsuario.peso" v-on:change="updateServicoUsuario(usuario, servicoUsuario)">
                                         </td>
-                                        <td class="text-right">
+                                        <td class="text-end">
                                             <button type="button" class="btn btn-danger" v-on:click="removeServicoUsuario(usuario, servicoUsuario)">
                                                 <i class="fa fa-trash"></i>
                                             </button>
@@ -305,7 +305,7 @@
             </div>
         </div>
 
-        <div id="dialog-servicos" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div ref="servicosModal" id="dialog-servicos" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -335,7 +335,7 @@
             </div>
         </div>
 
-        <div id="dialog-servico-unidade" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div ref="servicoUnidadeModal" id="dialog-servico-unidade" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     {{ form_start(form, { attr: { 'v-on:submit.prevent': 'updateServicoFromModal' } }) }}

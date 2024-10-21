@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Novosga\SettingsBundle\Controller;
 
+use DateTime;
 use Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use Novosga\Entity\UsuarioInterface;
@@ -36,6 +37,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
 use function array_map;
 use function array_filter;
 
@@ -111,7 +113,7 @@ class DefaultController extends AbstractController
 
             return $data;
         }, $usuarios);
-        
+
         $tiposAtendimento = $this->getTiposAtendimento($translator);
 
         $form = $this->createForm(ServicoUnidadeType::class);
@@ -227,11 +229,11 @@ class DefaultController extends AbstractController
 
         $su = $servicoUnidadeRepository->get($unidade, $servico);
         if (!$su) {
-            throw new Exception($translator->trans('error.invalid_service', [], NovosgaSettingsBundle::getDomain()));
+            throw new Exception($this->translate($translator, 'error.invalid_service'));
         }
 
         if ($su->isAtivo()) {
-            throw new Exception($translator->trans('error.cannot_remove_disabled_service', [], NovosgaSettingsBundle::getDomain()));
+            throw new Exception($this->translate($translator, 'error.cannot_remove_disabled_service'));
         }
 
         $em->beginTransaction();
@@ -362,7 +364,7 @@ class DefaultController extends AbstractController
 
         $su = $servicoUnidadeRepository->get($unidade, $servico);
         if (!$su) {
-            throw new Exception($translator->trans('error.invalid_service', [], NovosgaSettingsBundle::getDomain()));
+            throw new Exception($this->translate($translator, 'error.invalid_service'));
         }
 
         $contador = $contadorRepository->findOneBy([
@@ -386,7 +388,7 @@ class DefaultController extends AbstractController
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
 
-        $atendimentoService->limparDados($unidade);
+        $atendimentoService->limparDados($usuario, $unidade);
 
         $envelope = new Envelope();
         $envelope->setData(true);
@@ -402,11 +404,11 @@ class DefaultController extends AbstractController
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
 
-        $atendimentoService->acumularAtendimentos($unidade);
+        $atendimentoService->acumularAtendimentos($usuario, $unidade, new DateTime());
 
         return $this->json($envelope);
     }
-    
+
     #[Route("/servico_usuario/{usuarioId}/{servicoId}", name: "add_servico_usuario", methods: ["POST"])]
     public function addServicoUsuario(
         UsuarioServiceInterface $usuarioService,
@@ -415,7 +417,7 @@ class DefaultController extends AbstractController
         TranslatorInterface $translator,
         int $usuarioId,
         int $servicoId,
-    ) {
+    ): Response {
         $usuario = $usuarioService->getById($usuarioId);
         $servico = $servicoService->getById($servicoId);
         if (!$usuario || !$servico) {
@@ -429,7 +431,7 @@ class DefaultController extends AbstractController
 
         $su = $servicoUnidadeRepository->get($unidade, $servicoId);
         if (!$su) {
-            throw new Exception($translator->trans('error.invalid_service', [], NovosgaSettingsBundle::getDomain()));
+            throw new Exception($this->translate($translator, 'error.invalid_service'));
         }
 
         $servicoUsuario = $usuarioService->addServicoUsuario($usuario, $servico, $unidade);
@@ -437,11 +439,11 @@ class DefaultController extends AbstractController
 
         return $this->json($envelope);
     }
-    
+
     #[Route(
-       "/servico_usuario/{usuarioId}/{servicoId}",
-       name: "remove_servico_usuario",
-       methods: ["DELETE"]
+        "/servico_usuario/{usuarioId}/{servicoId}",
+        name: "remove_servico_usuario",
+        methods: ["DELETE"],
     )]
     public function removeServicoUsuario(
         UsuarioServiceInterface $usuarioService,
@@ -450,7 +452,7 @@ class DefaultController extends AbstractController
         TranslatorInterface $translator,
         int $usuarioId,
         int $servicoId,
-    ) {
+    ): Response {
         $usuario = $usuarioService->getById($usuarioId);
         $servico = $servicoService->getById($servicoId);
         if (!$usuario || !$servico) {
@@ -464,18 +466,18 @@ class DefaultController extends AbstractController
 
         $su = $servicoUnidadeRepository->get($unidade, $servicoId);
         if (!$su) {
-            throw new Exception($translator->trans('error.invalid_service', [], NovosgaSettingsBundle::getDomain()));
+            throw new Exception($this->translate($translator, 'error.invalid_service'));
         }
 
         $usuarioService->removeServicoUsuario($usuario, $servico, $unidade);
 
         return $this->json($envelope);
     }
-    
+
     #[Route(
-      "/servico_usuario/{usuarioId}/{servicoId}",
-      name: "update_servico_usuario",
-      methods: ["PUT"]
+        "/servico_usuario/{usuarioId}/{servicoId}",
+        name: "update_servico_usuario",
+        methods: ["PUT"],
     )]
     public function updateServicoUsuario(
         Request $request,
@@ -485,7 +487,7 @@ class DefaultController extends AbstractController
         TranslatorInterface $translator,
         int $usuarioId,
         int $servicoId,
-    ) {
+    ): Response {
         $usuario = $usuarioService->getById($usuarioId);
         $servico = $servicoService->getById($servicoId);
         if (!$usuario || !$servico) {
@@ -499,7 +501,7 @@ class DefaultController extends AbstractController
 
         $su = $servicoUnidadeRepository->get($unidade, $servicoId);
         if (!$su) {
-            throw new Exception($translator->trans('error.invalid_service', [], NovosgaSettingsBundle::getDomain()));
+            throw new Exception($this->translate($translator, 'error.invalid_service'));
         }
 
         $json = json_decode($request->getContent());
@@ -517,7 +519,7 @@ class DefaultController extends AbstractController
         Request $request,
         UsuarioServiceInterface $usuarioService,
         int $id,
-    ) {
+    ): Response {
         $usuario = $usuarioService->getById($id);
         if (!$usuario) {
             throw $this->createNotFoundException();
@@ -535,13 +537,20 @@ class DefaultController extends AbstractController
         return $this->json($envelope);
     }
 
+    /** @return array<string,string> */
     private function getTiposAtendimento(TranslatorInterface $translator): array
     {
         return [
-            FilaServiceInterface::TIPO_TODOS => $translator->trans('label.all', [], NovosgaSettingsBundle::getDomain()),
-            FilaServiceInterface::TIPO_NORMAL => $translator->trans('label.normal', [], NovosgaSettingsBundle::getDomain()),
-            FilaServiceInterface::TIPO_PRIORIDADE => $translator->trans('label.priority', [], NovosgaSettingsBundle::getDomain()),
-            FilaServiceInterface::TIPO_AGENDAMENTO => $translator->trans('label.schedule', [], NovosgaSettingsBundle::getDomain()),
+            FilaServiceInterface::TIPO_TODOS => $this->translate($translator, 'label.all'),
+            FilaServiceInterface::TIPO_NORMAL => $this->translate($translator, 'label.normal'),
+            FilaServiceInterface::TIPO_PRIORIDADE => $this->translate($translator, 'label.priority'),
+            FilaServiceInterface::TIPO_AGENDAMENTO => $this->translate($translator, 'label.schedule'),
         ];
-    }  
+    }
+
+    /** @param array<string,mixed> $params */
+    private function translate(TranslatorInterface $translator, string $id, array $params = []): string
+    {
+        return $translator->trans($id, [], NovosgaSettingsBundle::getDomain());
+    }
 }

@@ -22,10 +22,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ImpressaoType extends AbstractType
 {
-    /**
-     * @param FormBuilderInterface $builder
-     * @param array $options
-     */
+    /** {@inheritdoc} */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -67,6 +64,7 @@ class ImpressaoType extends AbstractType
             ]);
     }
 
+    /** {@inheritdoc} */
     public function getBlockPrefix()
     {
         return '';
