@@ -207,7 +207,7 @@
                     <div class="card mb-4">
                         <div class="card-header">
                             {% verbatim %}
-                                {{ usuario.nome }} ({{ usuario.login }})
+                                {{ usuario.nome }} ({{ usuario.login }}) - {{ usuario.id }}
                             {% endverbatim %}
                         </div>
                         <table class="table">
@@ -219,7 +219,7 @@
                                     <td>
                                         <select class="form-select" v-model="usuario.local" v-on:change="updateUsuario(usuario)">
                                             {% for local in locais %}
-                                                <option value="{{ local.id }}">{{ local.nome }}</option>
+                                                <option :value="{{ local.id }}">{{ local.nome }}</option>
                                             {% endfor %}
                                         </select>
                                     </td>
@@ -417,13 +417,12 @@
 {% block javascripts %}
     {{ parent() }}
     <script>
-        var usuarios              = {{ usuarios|json_encode()|raw }},
-            impressao             = {{ unidade.impressao|json_encode()|raw }},
-            usuario               = {{ usuario|json_encode()|raw }},
-            unidade               = {{ unidade|json_encode()|raw }},
-            desejaReiniciarSenhas = '{% trans %}Deseja realmente reiniciar as senhas?{% endtrans %}',
-            desejaReiniciar       = '{% trans %}Deseja realmente reiniciar o contador?{% endtrans %}',
-            desejaLimparDados     = '{% trans %}Deseja realmente limpar os dados de atendimento?{% endtrans %}';
+        const usuarios = {{ usuarios|json_encode()|raw }};
+        const impressao = {{ unidade.impressao|json_encode()|raw }};
+        const unidade = {{ unidade|json_encode()|raw }};
+        const desejaReiniciarSenhas = '{% trans %}Deseja realmente reiniciar as senhas?{% endtrans %}';
+        const desejaReiniciar = '{% trans %}Deseja realmente reiniciar o contador?{% endtrans %}';
+        const desejaLimparDados = '{% trans %}Deseja realmente limpar os dados de atendimento?{% endtrans %}';
     </script>
     <script type="text/javascript" src="{{ asset('bundles/novosgasettings/js/script.js') }}"></script>
 {% endblock %}

@@ -29,6 +29,9 @@ use Novosga\Service\FilaServiceInterface;
 use Novosga\Service\ServicoServiceInterface;
 use Novosga\Service\UnidadeServiceInterface;
 use Novosga\Service\UsuarioServiceInterface;
+use Novosga\SettingsBundle\Dto\AddServicosDto;
+use Novosga\SettingsBundle\Dto\UpdateUsuarioDto;
+use Novosga\SettingsBundle\Dto\UpdateUsuarioServicoDto;
 use Novosga\SettingsBundle\Form\ImpressaoType;
 use Novosga\SettingsBundle\Form\ServicoUnidadeType;
 use Novosga\SettingsBundle\NovosgaSettingsBundle;
@@ -36,6 +39,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function array_map;
@@ -61,8 +65,8 @@ class DefaultController extends AbstractController
         TranslatorInterface $translator,
     ): Response {
         /** @var UsuarioInterface */
-        $usuario = $this->getUser();
-        $unidade = $usuario->getLotacao()->getUnidade();
+        $usuarioAtual = $this->getUser();
+        $unidade = $usuarioAtual->getLotacao()->getUnidade();
         // locais disponiveis
         $locais = $localRepository->findBy([], ['nome' => 'ASC']);
         // usuarios da unidade
@@ -121,7 +125,6 @@ class DefaultController extends AbstractController
         $impressaoForm = $this->createForm(ImpressaoType::class, $unidade->getImpressao());
 
         return $this->render('@NovosgaSettings/default/index.html.twig', [
-            'usuario' => $usuario,
             'unidade' => $unidade,
             'locais' => $locais,
             'usuarios' => $usuariosArray,
@@ -165,46 +168,36 @@ class DefaultController extends AbstractController
     public function servicosUnidade(ServicoServiceInterface $servicoService): Response
     {
         /** @var UsuarioInterface */
-        $usuario = $this->getUser();
-        $unidade = $usuario->getLotacao()->getUnidade();
+        $usuarioAtual = $this->getUser();
+        $unidade = $usuarioAtual->getLotacao()->getUnidade();
         $servicos = $servicoService->servicosUnidade($unidade);
 
-        $envelope = new Envelope();
-        $envelope->setData($servicos);
-
-        return $this->json($envelope);
+        return $this->json(new Envelope($servicos));
     }
 
     #[Route("/servicos_unidade", name: "add_servico_unidade", methods: ['POST'])]
     public function addServico(
-        Request $request,
         ServicoRepositoryInterface $servicoRepository,
         ServicoServiceInterface $servicoService,
         UnidadeServiceInterface $unidadeService,
+        #[MapRequestPayload] AddServicosDto $data,
     ): Response {
-        $json = $request->getContent();
-        $data = json_decode($json, true);
-        $ids = $data['ids'] ?? [];
         /** @var UsuarioInterface */
-        $usuario = $this->getUser();
-        $unidade = $usuario->getLotacao()->getUnidade();
+        $usuarioAtual = $this->getUser();
+        $unidade = $usuarioAtual->getLotacao()->getUnidade();
 
-        if (!is_array($ids)) {
-            $ids = [];
-        }
-
-        $count = count($servicoService->servicosUnidade($unidade));
-        foreach ($ids as $id) {
-            $servico = $servicoRepository->find($id);
-            if ($servico) {
-                $sigla = $servicoService->gerarSigla(++$count);
-                $unidadeService->addServicoUnidade($servico, $unidade, $sigla);
+        if (!empty($data->ids)) {
+            $count = count($servicoService->servicosUnidade($unidade));
+            foreach ($data->ids as $id) {
+                $servico = $servicoRepository->find($id);
+                if ($servico) {
+                    $sigla = $servicoService->gerarSigla(++$count);
+                    $unidadeService->addServicoUnidade($servico, $unidade, $sigla);
+                }
             }
         }
 
-        $envelope = new Envelope();
-
-        return $this->json($envelope);
+        return $this->json(new Envelope());
     }
 
     #[Route("/servicos_unidade/{id}", name: "remove_servico_unidade", methods: ['DELETE'])]
@@ -217,15 +210,14 @@ class DefaultController extends AbstractController
         TranslatorInterface $translator,
         int $id,
     ): Response {
+        /** @var UsuarioInterface */
+        $usuarioAtual = $this->getUser();
+        $unidade = $usuarioAtual->getLotacao()->getUnidade();
+
         $servico = $servicoService->getById($id);
         if (!$servico) {
             throw $this->createNotFoundException();
         }
-
-        /** @var UsuarioInterface */
-        $usuario = $this->getUser();
-        $unidade = $usuario->getLotacao()->getUnidade();
-        $envelope = new Envelope();
 
         $su = $servicoUnidadeRepository->get($unidade, $servico);
         if (!$su) {
@@ -257,7 +249,7 @@ class DefaultController extends AbstractController
         $em->commit();
         $em->flush();
 
-        return $this->json($envelope);
+        return $this->json(new Envelope());
     }
 
     #[Route("/servicos_unidade/{id}", name: "update_servicos_unidade", methods: ['PUT'])]
@@ -268,6 +260,10 @@ class DefaultController extends AbstractController
         ServicoServiceInterface $servicoService,
         int $id,
     ): Response {
+        /** @var UsuarioInterface */
+        $usuarioAtual = $this->getUser();
+        $unidade = $usuarioAtual->getLotacao()->getUnidade();
+
         $servico = $servicoService->getById($id);
         if (!$servico) {
             throw $this->createNotFoundException();
@@ -275,10 +271,6 @@ class DefaultController extends AbstractController
 
         $json = $request->getContent();
         $data = json_decode($json, true);
-
-        /** @var UsuarioInterface */
-        $usuario = $this->getUser();
-        $unidade = $usuario->getLotacao()->getUnidade();
 
         $su = $servicoUnidadeRepository->get($unidade, $servico);
         $form = $this
@@ -300,8 +292,8 @@ class DefaultController extends AbstractController
     public function contadores(ContadorRepositoryInterface $contadorRepository): Response
     {
         /** @var UsuarioInterface */
-        $usuario = $this->getUser();
-        $unidade = $usuario->getLotacao()->getUnidade();
+        $usuarioAtual = $this->getUser();
+        $unidade = $usuarioAtual->getLotacao()->getUnidade();
 
         $contadores = $contadorRepository
             ->createQueryBuilder('e')
@@ -311,33 +303,27 @@ class DefaultController extends AbstractController
             ->getQuery()
             ->getResult();
 
-        $envelope = new Envelope();
-        $envelope->setData($contadores);
-
-        return $this->json($envelope);
+        return $this->json(new Envelope($contadores));
     }
 
     #[Route("/update_impressao", name: "update_impressao", methods: ['POST'])]
     public function updateImpressao(Request $request, EntityManagerInterface $em): Response
     {
-        $envelope = new Envelope();
-
         /** @var UsuarioInterface */
-        $usuario = $this->getUser();
-        $unidade = $usuario->getLotacao()->getUnidade();
+        $usuarioAtual = $this->getUser();
+        $unidade = $usuarioAtual->getLotacao()->getUnidade();
 
         $data = json_decode($request->getContent(), true);
-
         $form = $this
-            ->createForm(ImpressaoType::class, $unidade->getImpressao())
-            ->submit($data);
+        ->createForm(ImpressaoType::class, $unidade->getImpressao())
+        ->submit($data);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em->persist($unidade);
             $em->flush();
         }
 
-        $envelope->setData($unidade);
+        $envelope = new Envelope($unidade);
 
         return $this->json($envelope);
     }
@@ -351,16 +337,14 @@ class DefaultController extends AbstractController
         TranslatorInterface $translator,
         int $id,
     ): Response {
+        /** @var UsuarioInterface */
+        $usuarioAtual = $this->getUser();
+        $unidade = $usuarioAtual->getLotacao()->getUnidade();
+
         $servico = $servicoService->getById($id);
         if (!$servico) {
             throw $this->createNotFoundException();
         }
-
-        $envelope = new Envelope();
-
-        /** @var UsuarioInterface */
-        $usuario = $this->getUser();
-        $unidade = $usuario->getLotacao()->getUnidade();
 
         $su = $servicoUnidadeRepository->get($unidade, $servico);
         if (!$su) {
@@ -376,37 +360,31 @@ class DefaultController extends AbstractController
         $em->persist($contador);
         $em->flush();
 
-        $envelope->setData($contador);
-
-        return $this->json($envelope);
+        return $this->json(new Envelope($contador));
     }
 
     #[Route("/limpar", name: "limpar_dados", methods: ['POST'])]
     public function limparDados(AtendimentoServiceInterface $atendimentoService): Response
     {
         /** @var UsuarioInterface */
-        $usuario = $this->getUser();
-        $unidade = $usuario->getLotacao()->getUnidade();
+        $usuarioAtual = $this->getUser();
+        $unidade = $usuarioAtual->getLotacao()->getUnidade();
 
-        $atendimentoService->limparDados($usuario, $unidade);
+        $atendimentoService->limparDados($usuarioAtual, $unidade);
 
-        $envelope = new Envelope();
-        $envelope->setData(true);
-
-        return $this->json($envelope);
+        return $this->json(new Envelope(true));
     }
 
     #[Route("/acumular_atendimentos", name: "acumular_atendimentos", methods: ['POST'])]
     public function reiniciar(AtendimentoServiceInterface $atendimentoService): Response
     {
-        $envelope = new Envelope();
         /** @var UsuarioInterface */
-        $usuario = $this->getUser();
-        $unidade = $usuario->getLotacao()->getUnidade();
+        $usuarioAtual = $this->getUser();
+        $unidade = $usuarioAtual->getLotacao()->getUnidade();
 
-        $atendimentoService->acumularAtendimentos($usuario, $unidade, new DateTime());
+        $atendimentoService->acumularAtendimentos($usuarioAtual, $unidade, new DateTime());
 
-        return $this->json($envelope);
+        return $this->json(new Envelope());
     }
 
     #[Route("/servico_usuario/{usuarioId}/{servicoId}", name: "add_servico_usuario", methods: ["POST"])]
@@ -418,26 +396,24 @@ class DefaultController extends AbstractController
         int $usuarioId,
         int $servicoId,
     ): Response {
-        $usuario = $usuarioService->getById($usuarioId);
-        $servico = $servicoService->getById($servicoId);
-        if (!$usuario || !$servico) {
-            throw $this->createNotFoundException();
-        }
-
         /** @var UsuarioInterface */
         $usuarioAtual = $this->getUser();
         $unidade = $usuarioAtual->getLotacao()->getUnidade();
-        $envelope = new Envelope();
 
         $su = $servicoUnidadeRepository->get($unidade, $servicoId);
         if (!$su) {
             throw new Exception($this->translate($translator, 'error.invalid_service'));
         }
 
-        $servicoUsuario = $usuarioService->addServicoUsuario($usuario, $servico, $unidade);
-        $envelope->setData($servicoUsuario);
+        $usuario = $usuarioService->getById($usuarioId);
+        $servico = $servicoService->getById($servicoId);
+        if (!$usuario || !$servico) {
+            throw $this->createNotFoundException();
+        }
 
-        return $this->json($envelope);
+        $servicoUsuario = $usuarioService->addServicoUsuario($usuario, $servico, $unidade);
+
+        return $this->json(new Envelope($servicoUsuario));
     }
 
     #[Route(
@@ -453,25 +429,24 @@ class DefaultController extends AbstractController
         int $usuarioId,
         int $servicoId,
     ): Response {
-        $usuario = $usuarioService->getById($usuarioId);
-        $servico = $servicoService->getById($servicoId);
-        if (!$usuario || !$servico) {
-            throw $this->createNotFoundException();
-        }
-
         /** @var UsuarioInterface */
         $usuarioAtual = $this->getUser();
         $unidade = $usuarioAtual->getLotacao()->getUnidade();
-        $envelope = new Envelope();
 
         $su = $servicoUnidadeRepository->get($unidade, $servicoId);
         if (!$su) {
             throw new Exception($this->translate($translator, 'error.invalid_service'));
         }
 
+        $usuario = $usuarioService->getById($usuarioId);
+        $servico = $servicoService->getById($servicoId);
+        if (!$usuario || !$servico) {
+            throw $this->createNotFoundException();
+        }
+
         $usuarioService->removeServicoUsuario($usuario, $servico, $unidade);
 
-        return $this->json($envelope);
+        return $this->json(new Envelope());
     }
 
     #[Route(
@@ -480,44 +455,43 @@ class DefaultController extends AbstractController
         methods: ["PUT"],
     )]
     public function updateServicoUsuario(
-        Request $request,
         UsuarioServiceInterface $usuarioService,
         ServicoServiceInterface $servicoService,
         ServicoUnidadeRepositoryInterface $servicoUnidadeRepository,
         TranslatorInterface $translator,
+        #[MapRequestPayload] UpdateUsuarioServicoDto $data,
         int $usuarioId,
         int $servicoId,
     ): Response {
-        $usuario = $usuarioService->getById($usuarioId);
-        $servico = $servicoService->getById($servicoId);
-        if (!$usuario || !$servico) {
-            throw $this->createNotFoundException();
-        }
-
         /** @var UsuarioInterface */
-        $usuario = $this->getUser();
-        $unidade = $usuario->getLotacao()->getUnidade();
-        $envelope = new Envelope();
+        $usuarioAtual = $this->getUser();
+        $unidade = $usuarioAtual->getLotacao()->getUnidade();
 
         $su = $servicoUnidadeRepository->get($unidade, $servicoId);
         if (!$su) {
             throw new Exception($this->translate($translator, 'error.invalid_service'));
         }
 
-        $json = json_decode($request->getContent());
-
-        if (isset($json->peso) && $json->peso > 0) {
-            $servicoUsuario = $usuarioService->updateServicoUsuario($usuario, $servico, $unidade, (int) $json->peso);
-            $envelope->setData($servicoUsuario);
+        $usuario = $usuarioService->getById($usuarioId);
+        $servico = $servicoService->getById($servicoId);
+        if (!$usuario || !$servico) {
+            throw $this->createNotFoundException();
         }
 
-        return $this->json($envelope);
+        $servicoUsuario = $usuarioService->updateServicoUsuario(
+            $usuario,
+            $servico,
+            $unidade,
+            $data->peso,
+        );
+
+        return $this->json(new Envelope($servicoUsuario));
     }
 
     #[Route("/usuario/{id}", name: "update_usuario", methods: ['PUT'])]
     public function updateUsuario(
-        Request $request,
         UsuarioServiceInterface $usuarioService,
+        #[MapRequestPayload] UpdateUsuarioDto $data,
         int $id,
     ): Response {
         $usuario = $usuarioService->getById($id);
@@ -525,16 +499,14 @@ class DefaultController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        $json = json_decode($request->getContent());
-        $envelope = new Envelope();
+        $usuarioService->updateAtendente(
+            $usuario,
+            $data->tipoAtendimento,
+            $data->local,
+            $data->numero,
+        );
 
-        $tipoAtendimento = isset($json->tipoAtendimento) ? $json->tipoAtendimento : null;
-        $local = isset($json->local) ? (int) $json->local : null;
-        $numero = isset($json->numero) ? (int) $json->numero : null;
-
-        $usuarioService->updateAtendente($usuario, $tipoAtendimento, $local, $numero);
-
-        return $this->json($envelope);
+        return $this->json(new Envelope());
     }
 
     /** @return array<string,string> */

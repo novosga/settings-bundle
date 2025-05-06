@@ -23,10 +23,10 @@
         },
         computed: {
             availableServices: function () {
-                var map = {}, self = this;
+                let map = {};
 
-                this.usuarios.forEach(function (user) {
-                    map[user.id] = (self.servicosUnidade || []).filter(function (su) {
+                this.usuarios.forEach((user) => {
+                    map[user.id] = (this.servicosUnidade || []).filter(function (su) {
                         var userServices = user.servicos || [], available = true;
 
                         for (var i = 0; i < userServices.length; i++) {
@@ -131,7 +131,7 @@
                     url: App.url('/novosga.settings/servicos_unidade/') + servicoUnidade.servico.id,
                     type: 'delete',
                     success: () => {
-                        self.loadServicosUnidade();
+                        this.loadServicosUnidade();
                     }
                 });
             },
@@ -163,29 +163,27 @@
             },
 
             reiniciarContator: function (servicoId) {
-                var self = this;
                 if (!confirm(desejaReiniciar)) {
                     return;
                 }
                 App.ajax({
                     url: App.url('/novosga.settings/reiniciar/') + servicoId,
                     type: 'post',
-                    complete: function () {
-                        self.loadContadores();
+                    complete: () => {
+                        this.loadContadores();
                     }
                 });
             },
 
             limparSenhas: function () {
-                var self = this;
                 if (!confirm(desejaLimparDados)) {
                     return;
                 }
                 App.ajax({
                     url: App.url('/novosga.settings/limpar'),
                     type: 'post',
-                    complete: function () {
-                        self.loadContadores();
+                    complete: () => {
+                        this.loadContadores();
                     }
                 });
             },
@@ -195,12 +193,11 @@
                     return;
                 }
 
-                var self = this;
                 App.ajax({
                     url: App.url('/novosga.settings/acumular_atendimentos'),
                     type: 'post',
-                    complete: function () {
-                        self.loadContadores();
+                    complete: () => {
+                        this.loadContadores();
                     }
                 });
             },
@@ -258,7 +255,9 @@
                 App.ajax({
                     url: App.url('/novosga.settings/servico_usuario/') + usuario.id + '/' + servicoUsuario.id,
                     type: 'put',
-                    data: servicoUsuario,
+                    data: {
+                        peso: servicoUsuario.peso,
+                    },
                     success: function (response) {
                         servicoUsuario.peso = response.data.peso;
                     }
