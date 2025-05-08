@@ -255,7 +255,9 @@
                 App.ajax({
                     url: App.url('/novosga.settings/servico_usuario/') + usuario.id + '/' + servicoUsuario.id,
                     type: 'put',
-                    data: servicoUsuario,
+                    data: {
+                        peso: servicoUsuario.peso,
+                    },
                     success: function (response) {
                         servicoUsuario.peso = response.data.peso;
                     }
