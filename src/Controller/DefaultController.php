@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace Novosga\SettingsBundle\Controller;
 
 use DateTime;
+use DateTimeImmutable;
+use DateTimeZone;
 use Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use Novosga\Entity\UsuarioInterface;
@@ -382,7 +384,7 @@ class DefaultController extends AbstractController
         $usuarioAtual = $this->getUser();
         $unidade = $usuarioAtual->getLotacao()->getUnidade();
 
-        $atendimentoService->acumularAtendimentos($usuarioAtual, $unidade, new DateTime());
+        $atendimentoService->acumularAtendimentos($usuarioAtual, $unidade, new DateTimeImmutable('now', new DateTimeZone('UTC')));
 
         return $this->json(new Envelope());
     }
