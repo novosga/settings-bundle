@@ -13,9 +13,6 @@ declare(strict_types=1);
 
 namespace Novosga\SettingsBundle\Controller;
 
-use DateTime;
-use DateTimeImmutable;
-use DateTimeZone;
 use Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use Novosga\Entity\UsuarioInterface;
@@ -37,6 +34,7 @@ use Novosga\SettingsBundle\Dto\UpdateUsuarioServicoDto;
 use Novosga\SettingsBundle\Form\ImpressaoType;
 use Novosga\SettingsBundle\Form\ServicoUnidadeType;
 use Novosga\SettingsBundle\NovosgaSettingsBundle;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -142,6 +140,10 @@ class DefaultController extends AbstractController
         Request $request,
         ServicoRepositoryInterface $servicoRepository,
     ): Response {
+        /** @var UsuarioInterface */
+        $usuarioAtual = $this->getUser();
+        $unidade = $usuarioAtual->getLotacao()->getUnidade();
+
         $ids = array_filter(explode(',', $request->get('ids')), function ($i) {
             return $i > 0;
         });
@@ -160,10 +162,10 @@ class DefaultController extends AbstractController
             ->getQuery()
             ->getResult();
 
-        $envelope = new Envelope();
-        $envelope->setData($servicos);
-
-        return $this->json($envelope);
+        return $this->json(new Envelope(
+            timezone: $unidade->getDateTimeZone(),
+            data: $servicos,
+        ));
     }
 
     #[Route("/servicos_unidade", name: "servicos_unidade", methods: ['GET'])]
@@ -174,7 +176,10 @@ class DefaultController extends AbstractController
         $unidade = $usuarioAtual->getLotacao()->getUnidade();
         $servicos = $servicoService->servicosUnidade($unidade);
 
-        return $this->json(new Envelope($servicos));
+        return $this->json(new Envelope(
+            timezone: $unidade->getDateTimeZone(),
+            data: $servicos,
+        ));
     }
 
     #[Route("/servicos_unidade", name: "add_servico_unidade", methods: ['POST'])]
@@ -199,7 +204,9 @@ class DefaultController extends AbstractController
             }
         }
 
-        return $this->json(new Envelope());
+        return $this->json(new Envelope(
+            timezone: $unidade->getDateTimeZone(),
+        ));
     }
 
     #[Route("/servicos_unidade/{id}", name: "remove_servico_unidade", methods: ['DELETE'])]
@@ -251,7 +258,9 @@ class DefaultController extends AbstractController
         $em->commit();
         $em->flush();
 
-        return $this->json(new Envelope());
+        return $this->json(new Envelope(
+            timezone: $unidade->getDateTimeZone(),
+        ));
     }
 
     #[Route("/servicos_unidade/{id}", name: "update_servicos_unidade", methods: ['PUT'])]
@@ -284,10 +293,10 @@ class DefaultController extends AbstractController
             $em->flush();
         }
 
-        $envelope = new Envelope();
-        $envelope->setData($su);
-
-        return $this->json($envelope);
+        return $this->json(new Envelope(
+            timezone: $unidade->getDateTimeZone(),
+            data: $su,
+        ));
     }
 
     #[Route("/contadores", name: "contadores", methods: ['GET'])]
@@ -305,7 +314,10 @@ class DefaultController extends AbstractController
             ->getQuery()
             ->getResult();
 
-        return $this->json(new Envelope($contadores));
+        return $this->json(new Envelope(
+            timezone: $unidade->getDateTimeZone(),
+            data: $contadores,
+        ));
     }
 
     #[Route("/update_impressao", name: "update_impressao", methods: ['POST'])]
@@ -325,9 +337,10 @@ class DefaultController extends AbstractController
             $em->flush();
         }
 
-        $envelope = new Envelope($unidade);
-
-        return $this->json($envelope);
+        return $this->json(new Envelope(
+            timezone: $unidade->getDateTimeZone(),
+            data: $unidade,
+        ));
     }
 
     #[Route("/reiniciar/{id}", name: "reiniciar_contador", methods: ['POST'])]
@@ -362,7 +375,10 @@ class DefaultController extends AbstractController
         $em->persist($contador);
         $em->flush();
 
-        return $this->json(new Envelope($contador));
+        return $this->json(new Envelope(
+            timezone: $unidade->getDateTimeZone(),
+            data: $contador,
+        ));
     }
 
     #[Route("/limpar", name: "limpar_dados", methods: ['POST'])]
@@ -374,19 +390,24 @@ class DefaultController extends AbstractController
 
         $atendimentoService->limparDados($usuarioAtual, $unidade);
 
-        return $this->json(new Envelope(true));
+        return $this->json(new Envelope(
+            timezone: $unidade->getDateTimeZone(),
+            data: true,
+        ));
     }
 
     #[Route("/acumular_atendimentos", name: "acumular_atendimentos", methods: ['POST'])]
-    public function reiniciar(AtendimentoServiceInterface $atendimentoService): Response
+    public function reiniciar(AtendimentoServiceInterface $atendimentoService, ClockInterface $clock): Response
     {
         /** @var UsuarioInterface */
         $usuarioAtual = $this->getUser();
         $unidade = $usuarioAtual->getLotacao()->getUnidade();
 
-        $atendimentoService->acumularAtendimentos($usuarioAtual, $unidade, new DateTimeImmutable('now', new DateTimeZone('UTC')));
+        $atendimentoService->acumularAtendimentos($usuarioAtual, $unidade, $clock->now());
 
-        return $this->json(new Envelope());
+        return $this->json(new Envelope(
+            timezone: $unidade->getDateTimeZone(),
+        ));
     }
 
     #[Route("/servico_usuario/{usuarioId}/{servicoId}", name: "add_servico_usuario", methods: ["POST"])]
@@ -415,7 +436,10 @@ class DefaultController extends AbstractController
 
         $servicoUsuario = $usuarioService->addServicoUsuario($usuario, $servico, $unidade);
 
-        return $this->json(new Envelope($servicoUsuario));
+        return $this->json(new Envelope(
+            timezone: $unidade->getDateTimeZone(),
+            data: $servicoUsuario,
+        ));
     }
 
     #[Route(
@@ -448,7 +472,9 @@ class DefaultController extends AbstractController
 
         $usuarioService->removeServicoUsuario($usuario, $servico, $unidade);
 
-        return $this->json(new Envelope());
+        return $this->json(new Envelope(
+            timezone: $unidade->getDateTimeZone(),
+        ));
     }
 
     #[Route(
@@ -487,7 +513,10 @@ class DefaultController extends AbstractController
             $data->peso,
         );
 
-        return $this->json(new Envelope($servicoUsuario));
+        return $this->json(new Envelope(
+            timezone: $unidade->getDateTimeZone(),
+            data: $servicoUsuario,
+        ));
     }
 
     #[Route("/usuario/{id}", name: "update_usuario", methods: ['PUT'])]
@@ -496,6 +525,10 @@ class DefaultController extends AbstractController
         #[MapRequestPayload] UpdateUsuarioDto $data,
         int $id,
     ): Response {
+        /** @var UsuarioInterface */
+        $usuarioAtual = $this->getUser();
+        $unidade = $usuarioAtual->getLotacao()->getUnidade();
+
         $usuario = $usuarioService->getById($id);
         if (!$usuario) {
             throw $this->createNotFoundException();
@@ -508,7 +541,9 @@ class DefaultController extends AbstractController
             $data->numero,
         );
 
-        return $this->json(new Envelope());
+        return $this->json(new Envelope(
+            timezone: $unidade->getDateTimeZone(),
+        ));
     }
 
     /** @return array<string,string> */
