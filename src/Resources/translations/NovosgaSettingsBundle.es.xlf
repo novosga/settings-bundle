@@ -89,7 +89,37 @@
       <trans-unit id="14">
         <source>label.schedule</source>
         <target>Programación</target>
-        
+
+      </trans-unit>
+      <trans-unit id="15">
+        <source>label.yes</source>
+        <target>Sí</target>
+
+      </trans-unit>
+      <trans-unit id="16">
+        <source>label.no</source>
+        <target>No</target>
+
+      </trans-unit>
+      <trans-unit id="17">
+        <source>settings.user.behavior</source>
+        <target>Comportamiento</target>
+
+      </trans-unit>
+      <trans-unit id="18">
+        <source>settings.user.call_ticket_by_service</source>
+        <target>Llamar por servicio</target>
+
+      </trans-unit>
+      <trans-unit id="19">
+        <source>settings.user.call_ticket_out_of_order</source>
+        <target>Llamar fuera de orden</target>
+
+      </trans-unit>
+      <trans-unit id="20">
+        <source>settings.user.use_global</source>
+        <target>Predeterminado global</target>
+
       </trans-unit>
     </body>
   </file>

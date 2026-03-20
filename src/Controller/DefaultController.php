@@ -23,12 +23,15 @@ use Novosga\Repository\ServicoRepositoryInterface;
 use Novosga\Repository\ServicoUnidadeRepositoryInterface;
 use Novosga\Repository\ServicoUsuarioRepositoryInterface;
 use Novosga\Repository\UsuarioRepositoryInterface;
+use Novosga\Service\ApplicationSettingsServiceInterface;
 use Novosga\Service\AtendimentoServiceInterface;
+use Novosga\Settings\UserBehaviorSettings;
 use Novosga\Service\FilaServiceInterface;
 use Novosga\Service\ServicoServiceInterface;
 use Novosga\Service\UnidadeServiceInterface;
 use Novosga\Service\UsuarioServiceInterface;
 use Novosga\SettingsBundle\Dto\AddServicosDto;
+use Novosga\SettingsBundle\Dto\UpdateUsuarioBehaviorDto;
 use Novosga\SettingsBundle\Dto\UpdateUsuarioDto;
 use Novosga\SettingsBundle\Dto\UpdateUsuarioServicoDto;
 use Novosga\SettingsBundle\Form\ImpressaoType;
@@ -57,6 +60,7 @@ class DefaultController extends AbstractController
 {
     #[Route("/", name: "index", methods: ['GET'])]
     public function index(
+        ApplicationSettingsServiceInterface $settingsService,
         ServicoServiceInterface $servicoService,
         UsuarioServiceInterface $usuarioService,
         UsuarioRepositoryInterface $usuarioRepository,
@@ -83,6 +87,7 @@ class DefaultController extends AbstractController
             $unidade,
             $servicosUnidade,
             $usuarioService,
+            $settingsService,
             $servicoUsuarioRepository,
         ) {
             $servicosUsuario = $servicoUsuarioRepository->getAll($usuario, $unidade);
@@ -115,6 +120,12 @@ class DefaultController extends AbstractController
             $numeroMeta = $usuarioService->meta($usuario, UsuarioServiceInterface::ATTR_ATENDIMENTO_NUM_LOCAL);
             $data['numero'] = $numeroMeta ? (int) $numeroMeta->getValue() : null;
 
+            $userBehavior = $settingsService->loadUserBehaviorSettings($usuario, resolveGlobal: false);
+            $data['behavior'] = [
+                'callTicketByService'  => $userBehavior->callTicketByService,
+                'callTicketOutOfOrder' => $userBehavior->callTicketOutOfOrder,
+            ];
+
             return $data;
         }, $usuarios);
 
@@ -129,6 +140,7 @@ class DefaultController extends AbstractController
             'locais' => $locais,
             'usuarios' => $usuariosArray,
             'tiposAtendimento' => $tiposAtendimento,
+            'globalBehavior' => $settingsService->loadBehaviorSettings(),
             'form' => $form,
             'inlineForm' => $inlineForm,
             'impressaoForm' => $impressaoForm,
@@ -539,6 +551,35 @@ class DefaultController extends AbstractController
             $data->tipoAtendimento,
             $data->local,
             $data->numero,
+        );
+
+        return $this->json(new Envelope(
+            timezone: $unidade->getDateTimeZone(),
+        ));
+    }
+
+    #[Route("/usuario/{id}/behavior", name: "update_usuario_behavior", methods: ['PUT'])]
+    public function updateUsuarioBehavior(
+        ApplicationSettingsServiceInterface $settingsService,
+        UsuarioServiceInterface $usuarioService,
+        #[MapRequestPayload] UpdateUsuarioBehaviorDto $data,
+        int $id,
+    ): Response {
+        /** @var UsuarioInterface */
+        $usuarioAtual = $this->getUser();
+        $unidade = $usuarioAtual->getLotacao()->getUnidade();
+
+        $usuario = $usuarioService->getById($id);
+        if (!$usuario) {
+            throw $this->createNotFoundException();
+        }
+
+        $settingsService->saveUserBehaviorSettings(
+            $usuario,
+            new UserBehaviorSettings(
+                callTicketByService: $data->callTicketByService,
+                callTicketOutOfOrder: $data->callTicketOutOfOrder,
+            ),
         );
 
         return $this->json(new Envelope(

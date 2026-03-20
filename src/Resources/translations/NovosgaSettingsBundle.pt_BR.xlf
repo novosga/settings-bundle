@@ -74,6 +74,30 @@
         <source>label.schedule</source>
         <target>Agendamento</target>
       </trans-unit>
+      <trans-unit id="15">
+        <source>label.yes</source>
+        <target>Sim</target>
+      </trans-unit>
+      <trans-unit id="16">
+        <source>label.no</source>
+        <target>Não</target>
+      </trans-unit>
+      <trans-unit id="17">
+        <source>settings.user.behavior</source>
+        <target>Comportamento</target>
+      </trans-unit>
+      <trans-unit id="18">
+        <source>settings.user.call_ticket_by_service</source>
+        <target>Chamar por serviço</target>
+      </trans-unit>
+      <trans-unit id="19">
+        <source>settings.user.call_ticket_out_of_order</source>
+        <target>Chamar fora de ordem</target>
+      </trans-unit>
+      <trans-unit id="20">
+        <source>settings.user.use_global</source>
+        <target>Padrão global</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
