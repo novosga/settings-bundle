@@ -14,7 +14,7 @@
         "novosga/core": "2.3.x-dev",
         "symfony/framework-bundle": "7.1.*",
         "symfony/form": "7.1.*",
-        "symfony/clock": "^7.4"
+        "symfony/clock": "7.1.*"
     },
     "require-dev": {
         "phpstan/phpstan": "^1.10",
