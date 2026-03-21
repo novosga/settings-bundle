@@ -263,6 +263,17 @@
                     }
                 });
             },
+
+            updateUsuarioBehavior: function (usuario) {
+                App.ajax({
+                    url: App.url('/novosga.settings/usuario/') + usuario.id + '/behavior',
+                    type: 'put',
+                    data: {
+                        callTicketByService: usuario.behavior.callTicketByService,
+                        callTicketOutOfOrder: usuario.behavior.callTicketOutOfOrder,
+                    }
+                });
+            },
         },
         mounted() {
             this.servicosModal = new bootstrap.Modal(this.$refs.servicosModal);

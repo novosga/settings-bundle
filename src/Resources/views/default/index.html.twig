@@ -204,96 +204,150 @@
                     </select>
                 </div>
                 <div v-if="usuario" class="mb-3">
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            {% verbatim %}
-                                {{ usuario.nome }} ({{ usuario.login }}) - {{ usuario.id }}
-                            {% endverbatim %}
-                        </div>
-                        <table class="table">
-                            <tbody>
-                                <tr>
-                                    <th>
-                                        {% trans %}Local{% endtrans %}
-                                    </th>
-                                    <td>
-                                        <select class="form-select" v-model="usuario.local" v-on:change="updateUsuario(usuario)">
-                                            {% for local in locais %}
-                                                <option :value="{{ local.id }}">{{ local.nome }}</option>
-                                            {% endfor %}
+                    <div class="row">
+                        <div class="col-12 col-md-7">
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    {% verbatim %}
+                                        {{ usuario.nome }} ({{ usuario.login }}) - {{ usuario.id }}
+                                    {% endverbatim %}
+                                </div>
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th>
+                                                {% trans %}Local{% endtrans %}
+                                            </th>
+                                            <td>
+                                                <select class="form-select" v-model="usuario.local" v-on:change="updateUsuario(usuario)">
+                                                    {% for local in locais %}
+                                                        <option :value="{{ local.id }}">{{ local.nome }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                {% trans %}Número do local{% endtrans %}
+                                            </th>
+                                            <td>
+                                                <input type="number" class="form-control" v-model="usuario.numero" v-on:change="updateUsuario(usuario)">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                {% trans %}Tipo de atendimento{% endtrans %}
+                                            </th>
+                                            <td>
+                                                <select class="form-select" v-model="usuario.tipoAtendimento" v-on:change="updateUsuario(usuario)">
+                                                    {% for k, v in tiposAtendimento %}
+                                                    <option value="{{k}}">{{v}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                {% trans %}Serviço{% endtrans %}
+                                            </th>
+                                            <th>
+                                                {% trans %}Peso{% endtrans %}
+                                            </th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="servicoUsuario in usuario.servicos">
+                                            <td>
+                                                {% verbatim %}
+                                                    {{ servicoUsuario.sigla }} - {{ servicoUsuario.nome }}
+                                                {% endverbatim %}
+                                            </td>
+                                            <td style="width: 100px">
+                                                <input type="number" class="form-control" v-model="servicoUsuario.peso" v-on:change="updateServicoUsuario(usuario, servicoUsuario)">
+                                            </td>
+                                            <td class="text-end">
+                                                <button type="button" class="btn btn-danger" v-on:click="removeServicoUsuario(usuario, servicoUsuario)">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr v-if="usuario.servicos.length === 0">
+                                            <td colspan="3" class="text-muted">
+                                                {% trans %}Nenhum serviço{% endtrans %}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="panel-footer">
+                                    <div class="input-group">
+                                        <select class="form-select" v-model="servicoUsuario[usuario.id]">
+                                            <option v-for="servicoUnidade in availableServices[usuario.id]" v-bind:value="servicoUnidade">
+                                                {% verbatim %}
+                                                    {{ servicoUnidade.sigla }} - {{ servicoUnidade.servico.nome }}
+                                                {% endverbatim %}
+                                            </option>
                                         </select>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>
-                                        {% trans %}Número do local{% endtrans %}
-                                    </th>
-                                    <td>
-                                        <input type="number" class="form-control" v-model="usuario.numero" v-on:change="updateUsuario(usuario)">
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>
-                                        {% trans %}Tipo de atendimento{% endtrans %}
-                                    </th>
-                                    <td>
-                                        <select class="form-select" v-model="usuario.tipoAtendimento" v-on:change="updateUsuario(usuario)">
-                                            {% for k, v in tiposAtendimento %}
-                                            <option value="{{k}}">{{v}}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        {% trans %}Serviço{% endtrans %}
-                                    </th>
-                                    <th>
-                                        {% trans %}Peso{% endtrans %}
-                                    </th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="servicoUsuario in usuario.servicos">
-                                    <td>
-                                        {% verbatim %}
-                                            {{ servicoUsuario.sigla }} - {{ servicoUsuario.nome }}
-                                        {% endverbatim %}
-                                    </td>
-                                    <td style="width: 100px">
-                                        <input type="number" class="form-control" v-model="servicoUsuario.peso" v-on:change="updateServicoUsuario(usuario, servicoUsuario)">
-                                    </td>
-                                    <td class="text-end">
-                                        <button type="button" class="btn btn-danger" v-on:click="removeServicoUsuario(usuario, servicoUsuario)">
-                                            <i class="fa fa-trash"></i>
+                                        <button type="button" class="btn btn-secondary" type="button" v-on:click="addServicoUsuario(usuario)">
+                                            <i class="fa fa-plus"></i>
+                                            Adicionar
                                         </button>
-                                    </td>
-                                </tr>
-                                <tr v-if="usuario.servicos.length === 0">
-                                    <td colspan="3" class="text-muted">
-                                        {% trans %}Nenhum serviço{% endtrans %}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div class="panel-footer">
-                            <div class="input-group">
-                                <select class="form-select" v-model="servicoUsuario[usuario.id]">
-                                    <option v-for="servicoUnidade in availableServices[usuario.id]" v-bind:value="servicoUnidade">
-                                        {% verbatim %}
-                                            {{ servicoUnidade.sigla }} - {{ servicoUnidade.servico.nome }}
-                                        {% endverbatim %}
-                                    </option>
-                                </select>
-                                <button type="button" class="btn btn-secondary" type="button" v-on:click="addServicoUsuario(usuario)">
-                                    <i class="fa fa-plus"></i>
-                                    Adicionar
-                                </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-5">
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <i class="fa fa-handshake-o"></i> 
+                                    {{ 'settings.user.behavior'|trans }}
+                                </div>
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th>
+                                                {{ 'settings.user.call_ticket_by_service'|trans }}
+                                            </th>
+                                            <td>
+                                                <select class="form-select" v-model="usuario.behavior.callTicketByService" v-on:change="updateUsuarioBehavior(usuario)">
+                                                    <option :value="null">
+                                                        {{ 'settings.user.use_global'|trans }}
+                                                        ({{ globalBehavior.callTicketByService ? 'label.yes'|trans : 'label.no'|trans }})
+                                                    </option>
+                                                    <option :value="true">
+                                                        {{ 'label.yes'|trans }}
+                                                    </option>
+                                                    <option :value="false">
+                                                        {{ 'label.no'|trans }}
+                                                    </option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                {{ 'settings.user.call_ticket_out_of_order'|trans }}
+                                            </th>
+                                            <td>
+                                                <select class="form-select" v-model="usuario.behavior.callTicketOutOfOrder" v-on:change="updateUsuarioBehavior(usuario)">
+                                                    <option :value="null">
+                                                        {{ 'settings.user.use_global'|trans }}
+                                                        ({{ globalBehavior.callTicketOutOfOrder ? 'label.yes'|trans : 'label.no'|trans }})
+                                                    </option>
+                                                    <option :value="true">
+                                                        {{ 'label.yes'|trans }}
+                                                    </option>
+                                                    <option :value="false">
+                                                        {{ 'label.no'|trans }}
+                                                    </option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -420,6 +474,7 @@
         const usuarios = {{ usuarios|json_encode()|raw }};
         const impressao = {{ unidade.impressao|json_encode()|raw }};
         const unidade = {{ unidade|json_encode()|raw }};
+        const globalBehavior = {{ globalBehavior|json_encode()|raw }};
         const desejaReiniciarSenhas = '{% trans %}Deseja realmente reiniciar as senhas?{% endtrans %}';
         const desejaReiniciar = '{% trans %}Deseja realmente reiniciar o contador?{% endtrans %}';
         const desejaLimparDados = '{% trans %}Deseja realmente limpar os dados de atendimento?{% endtrans %}';
