@@ -18,6 +18,7 @@ final readonly class UpdateUsuarioBehaviorDto
     public function __construct(
         public ?bool $callTicketByService,
         public ?bool $callTicketOutOfOrder,
+        public ?bool $changeTicketType,
     ) {
     }
 }

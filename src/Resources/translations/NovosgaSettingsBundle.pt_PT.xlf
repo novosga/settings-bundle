@@ -116,6 +116,10 @@
         <target>Padrão global</target>
 
       </trans-unit>
+      <trans-unit id="21">
+        <source>settings.user.change_ticket_type</source>
+        <target>Alterar tipo de atendimento</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
