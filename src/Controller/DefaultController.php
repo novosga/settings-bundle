@@ -124,6 +124,7 @@ class DefaultController extends AbstractController
             $data['behavior'] = [
                 'callTicketByService'  => $userBehavior->callTicketByService,
                 'callTicketOutOfOrder' => $userBehavior->callTicketOutOfOrder,
+                'changeTicketType'     => $userBehavior->changeTicketType,
             ];
 
             return $data;
@@ -579,6 +580,7 @@ class DefaultController extends AbstractController
             new UserBehaviorSettings(
                 callTicketByService: $data->callTicketByService,
                 callTicketOutOfOrder: $data->callTicketOutOfOrder,
+                changeTicketType: $data->changeTicketType,
             ),
         );
 

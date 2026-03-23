@@ -121,6 +121,10 @@
         <target>Predeterminado global</target>
 
       </trans-unit>
+      <trans-unit id="21">
+        <source>settings.user.change_ticket_type</source>
+        <target>Cambiar tipo de atención</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

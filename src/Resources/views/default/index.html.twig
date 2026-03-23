@@ -346,6 +346,25 @@
                                                 </select>
                                             </td>
                                         </tr>
+                                        <tr>
+                                            <th>
+                                                {{ 'settings.user.change_ticket_type'|trans }}
+                                            </th>
+                                            <td>
+                                                <select class="form-select" v-model="usuario.behavior.changeTicketType" v-on:change="updateUsuarioBehavior(usuario)">
+                                                    <option :value="null">
+                                                        {{ 'settings.user.use_global'|trans }}
+                                                        ({{ globalBehavior.changeTicketType ? 'label.yes'|trans : 'label.no'|trans }})
+                                                    </option>
+                                                    <option :value="true">
+                                                        {{ 'label.yes'|trans }}
+                                                    </option>
+                                                    <option :value="false">
+                                                        {{ 'label.no'|trans }}
+                                                    </option>
+                                                </select>
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
