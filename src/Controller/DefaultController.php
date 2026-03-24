@@ -157,7 +157,7 @@ class DefaultController extends AbstractController
         $usuarioAtual = $this->getUser();
         $unidade = $usuarioAtual->getLotacao()->getUnidade();
 
-        $ids = array_filter(explode(',', $request->get('ids')), function ($i) {
+        $ids = array_filter(explode(',', $request->query->get('ids')), function ($i) {
             return $i > 0;
         });
 
